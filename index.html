@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hampton Headstone Care — Headstone, Monument & Stone Cleaning · East Hampton, NY</title>
+  <meta name="description" content="A small, local service caring for the headstones, monuments, and stonework of East Hampton, Springs, and Amagansett. Hand-cleaned with D/2 biological solution. By Jason Bono." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="nav-root"></div>
+
+  <main>
+    <!-- ── Hero with Before/After ─────────────────────────────────── -->
+    <section class="hero-split dark-surface grain" style="display: grid; grid-template-columns: 1.05fr 1fr; min-height: 86vh; align-items: stretch;">
+      <div style="padding: 88px 64px 72px; display: flex; flex-direction: column; justify-content: space-between; gap: 48px;">
+        <div class="eyebrow eyebrow--gold">East Hampton · Springs · Amagansett</div>
+        <div>
+          <h1 class="display" style="font-size: clamp(48px, 6.4vw, 92px); color: var(--cream); margin: 0; letter-spacing: -0.01em;">
+            Simple,<br>
+            <span class="display-italic" style="color: var(--gold-light);">respectful</span><br>
+            stone care.
+          </h1>
+          <div style="height: 32px;"></div>
+          <p class="body-text" style="color: rgba(245,240,230,0.82); max-width: 440px; margin: 0;">
+            A seasonal service by Jason Bono. Every stone cleaned by hand with D/2 biological solution &mdash; safe for granite, marble, and slate. Before and after photos with every visit.
+          </p>
+        </div>
+        <div class="hero-cta-row" style="display: flex; flex-wrap: wrap; align-items: center; gap: 32px; row-gap: 20px;">
+          <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <a href="booking.html" class="btn btn--on-dark">Book a cleaning <span class="arrow">&rarr;</span></a>
+            <a href="gallery.html" class="btn btn--on-dark">See the work <span class="arrow">&rarr;</span></a>
+          </div>
+          <div class="hero-cta-phone" style="border-left: 1px solid rgba(212,184,122,0.3); padding-left: 28px;">
+            <div style="font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-light); margin-bottom: 6px;">Or call &middot; text</div>
+            <a href="tel:6316048002" style="font-family: 'Cormorant Garamond', serif; font-size: 26px; color: var(--cream); text-decoration: none; line-height: 1; display: block;">
+              (631) 604-8002
+            </a>
+            <div style="margin-top: 6px; font-size: 12px; color: rgba(245,240,230,0.6);">Jason answers personally</div>
+          </div>
+        </div>
+      </div>
+      <div id="hero-ba" class="hero-ba" style="background: var(--charcoal); position: relative; display: grid; grid-template-rows: 1fr 1fr; gap: 1px;">
+        <div style="position: relative; overflow: hidden; background: var(--charcoal);">
+          <img src="images/ba/leedham-before.jpeg" alt="Headstone before cleaning" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+          <span style="position: absolute; top: 14px; left: 14px; font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; padding: 6px 14px; background: rgba(30,43,26,0.78); color: var(--cream); backdrop-filter: blur(4px);">Before</span>
+        </div>
+        <div style="position: relative; overflow: hidden; background: var(--charcoal);">
+          <img src="images/ba/leedham-after.jpeg" alt="Headstone after cleaning" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+          <span style="position: absolute; top: 14px; left: 14px; font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; padding: 6px 14px; background: rgba(184,154,90,0.92); color: var(--forest);">After</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Trust strip ──────────────────────────────────────────── -->
+    <section style="padding: 28px 0; border-bottom: 1px solid var(--rule); background: var(--cream);">
+      <div class="page-wrap">
+        <div class="trust-strip" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: center; font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--moss-light); text-align: center;">
+          <span>D/2 biological solution</span>
+          <span style="border-left: 1px solid var(--gold);">Hand-cleaned, every stone</span>
+          <span style="border-left: 1px solid var(--gold);">Veteran flags always free</span>
+          <span style="border-left: 1px solid var(--gold);">Season May &ndash; October</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Beyond headstones (soft expansion) ──────────────────── -->
+    <section style="padding: 96px 0; background: var(--warm-white);">
+      <div class="page-wrap">
+        <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 72px; align-items: start;">
+          <div>
+            <div class="eyebrow">Beyond headstones</div>
+            <div style="height: 14px;"></div>
+            <h2 class="display" style="font-size: clamp(30px, 3.6vw, 44px); color: var(--forest); margin: 0;">
+              Other stone, looked after the same way.
+            </h2>
+          </div>
+          <div>
+            <p class="body-text" style="margin: 0 0 24px;">
+              Headstone cleaning will always be the heart of what we do. But the same care &mdash; the same patience and gentle methods &mdash; works just as well on the rest of the stone in your life.
+            </p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 32px; padding-top: 20px; border-top: 1px solid var(--rule);">
+              <div style="padding: 10px 0; font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--forest);">Monuments & obelisks</div>
+              <div style="padding: 10px 0; font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--forest);">Statues & fountains</div>
+              <div style="padding: 10px 0; font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--forest);">Stone benches & pedestals</div>
+              <div style="padding: 10px 0; font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--forest);">Patios & walkways</div>
+              <div style="padding: 10px 0; font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--forest);">Pool decks & pavers</div>
+              <div style="padding: 10px 0; font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--forest);">Retaining & stone walls</div>
+            </div>
+            <div style="margin-top: 32px;">
+              <a href="services.html#beyond" class="btn btn--ghost">More on these services <span class="arrow">&rarr;</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Finder teaser ────────────────────────────────────────── -->
+    <section class="section">
+      <div class="page-wrap">
+        <div class="finder-detail-grid" style="display: grid; grid-template-columns: 1fr 1.1fr; gap: 72px; align-items: center;">
+          <div>
+            <div class="cl-map" style="padding: 10px;">
+              <svg viewBox="0 0 1200 880" xmlns="http://www.w3.org/2000/svg" style="display: block; width: 100%; height: auto;" aria-hidden="true">
+                <path class="cl-property-line" d="M 60 60 L 1140 60 L 1140 820 L 60 820 Z"></path>
+                <rect class="cl-road" x="120" y="108" width="973" height="12"></rect>
+                <rect class="cl-zone" x="120" y="120" width="260" height="210" rx="2"></rect>
+                <text class="cl-zone-label" x="250" y="221" style="font-size: 22px;">X1</text>
+                <rect class="cl-road" x="120" y="330" width="285" height="10"></rect>
+                <rect class="cl-road" x="370" y="120" width="10" height="220"></rect>
+                <g id="finder-teaser-cells"></g>
+                <rect class="cl-road" x="463" y="120" width="12" height="660"></rect>
+                <rect class="cl-road" x="533" y="120" width="12" height="660"></rect>
+                <rect class="cl-road" x="603" y="120" width="12" height="660"></rect>
+                <rect class="cl-road" x="673" y="120" width="12" height="660"></rect>
+                <rect class="cl-road" x="743" y="120" width="12" height="660"></rect>
+                <rect class="cl-road" x="813" y="120" width="12" height="660"></rect>
+                <rect class="cl-road" x="883" y="120" width="12" height="660"></rect>
+                <rect class="cl-road" x="953" y="120" width="12" height="660"></rect>
+                <rect class="cl-road" x="1023" y="120" width="12" height="660"></rect>
+                <path class="cl-road" d="M 408 840 C 408 808, 432 786, 469 786 L 715 786 C 752 786, 732 808, 732 840 L 720 840 C 720 814, 738 798, 715 798 L 469 798 C 446 798, 420 814, 420 840 Z"></path>
+                <path class="cl-road" d="M 763 840 C 763 808, 788 786, 819 786 L 1075 786 C 1106 786, 1087 808, 1087 840 L 1075 840 C 1075 814, 1098 798, 1075 798 L 819 798 C 796 798, 775 814, 775 840 Z"></path>
+                <circle class="cl-entrance" cx="414" cy="845" r="9"></circle>
+                <circle class="cl-entrance" cx="726" cy="845" r="9"></circle>
+                <circle class="cl-entrance" cx="769" cy="845" r="9"></circle>
+                <circle class="cl-entrance" cx="1081" cy="845" r="9"></circle>
+                <circle class="cl-entrance" cx="120" cy="330" r="9"></circle>
+              </svg>
+            </div>
+            <div style="margin-top: 14px; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--stone); text-align: center;">
+              Cedar Lawn Cemetery · Cooper Lane
+            </div>
+          </div>
+          <div>
+            <div class="eyebrow">The Headstone Finder</div>
+            <div style="height: 18px;"></div>
+            <h2 class="display" style="font-size: clamp(36px, 5vw, 58px); color: var(--forest); margin: 0;">
+              A searchable record of who rests where &mdash; built by the community.
+            </h2>
+            <div style="height: 28px;"></div>
+            <p class="body-text" style="margin: 0;">
+              Anyone can contribute. Search by name, birth year, or veteran status and find the general sector of Cedar Lawn where your person lies. No exact coordinates &mdash; just enough to lead you there.
+            </p>
+            <div style="height: 36px;"></div>
+            <a href="finder.html" class="btn">Open the Finder <span class="arrow">&rarr;</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Gallery teaser ────────────────────────────────────────── -->
+    <section style="padding: 96px 0 120px; background: var(--cream); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+      <div class="page-wrap">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: end; margin-bottom: 48px;">
+          <div>
+            <div class="eyebrow">Before & after</div>
+            <div style="height: 14px;"></div>
+            <h2 class="display" style="font-size: clamp(36px, 5vw, 56px); color: var(--forest); margin: 0;">
+              The same stone, the same morning.
+            </h2>
+          </div>
+          <p class="body-text" style="margin: 0; align-self: end;">
+            Drag the slider to see the difference. Every cleaning is documented this way &mdash; so you can see the care for yourself.
+          </p>
+        </div>
+        <div id="gallery-teaser-ba"></div>
+        <div style="margin-top: 32px; display: flex; justify-content: flex-end;">
+          <a href="gallery.html" class="btn">See the full gallery <span class="arrow">&rarr;</span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Approach (3 pillars) ─────────────────────────────────── -->
+    <section class="section">
+      <div class="page-wrap">
+        <div style="display: grid; grid-template-columns: 0.9fr 1.3fr; gap: 72px;">
+          <div>
+            <div class="eyebrow">Our approach</div>
+            <div style="height: 16px;"></div>
+            <h2 class="display" style="font-size: clamp(34px, 4vw, 48px); color: var(--forest); margin: 0;">
+              Three things we never compromise on.
+            </h2>
+          </div>
+          <div>
+            <div style="padding: 28px 0; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 70px 1fr; gap: 24px; align-items: baseline;">
+              <div class="display" style="font-size: 34px; color: var(--gold);">01</div>
+              <div>
+                <div class="display" style="font-size: 26px; color: var(--forest);">Local, not franchised</div>
+                <div style="height: 8px;"></div>
+                <p class="body-text" style="margin: 0; font-size: 14px;">Born and raised out here. Every stone is visited in person &mdash; never subcontracted, never rushed.</p>
+              </div>
+            </div>
+            <div style="padding: 28px 0; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 70px 1fr; gap: 24px; align-items: baseline;">
+              <div class="display" style="font-size: 34px; color: var(--gold);">02</div>
+              <div>
+                <div class="display" style="font-size: 26px; color: var(--forest);">D/2 biological solution</div>
+                <div style="height: 8px;"></div>
+                <p class="body-text" style="margin: 0; font-size: 14px;">The same cleaner approved by the National Cemetery Administration. Safe for granite, marble, and slate. No wire brushes. No bleach.</p>
+              </div>
+            </div>
+            <div style="padding: 28px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); display: grid; grid-template-columns: 70px 1fr; gap: 24px; align-items: baseline;">
+              <div class="display" style="font-size: 34px; color: var(--gold);">03</div>
+              <div>
+                <div class="display" style="font-size: 26px; color: var(--forest);">Documented and photographed</div>
+                <div style="height: 8px;"></div>
+                <p class="body-text" style="margin: 0; font-size: 14px;">Before and after photos are included with every cleaning &mdash; so you can see the care, even from far away.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Services teaser ──────────────────────────────────────── -->
+    <section class="section dark-surface grain" style="padding: 120px 0;">
+      <div class="page-wrap">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: end; margin-bottom: 56px;">
+          <div>
+            <div class="eyebrow eyebrow--gold">Services & pricing</div>
+            <div style="height: 16px;"></div>
+            <h2 class="display" style="font-size: clamp(36px, 5vw, 56px); color: var(--cream); margin: 0;">
+              Per-stone pricing.
+            </h2>
+          </div>
+          <p class="body-text" style="color: rgba(245,240,230,0.72); margin: 0;">
+            Every cleaning is priced by the stone. Add-ons and maintenance plans are optional. Veteran flag placement is always included.
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(212,184,122,0.2); border: 1px solid rgba(212,184,122,0.2);">
+          <div style="background: var(--forest); padding: 36px 28px; display: flex; flex-direction: column; gap: 14px;">
+            <div class="eyebrow eyebrow--gold">Small</div>
+            <div style="font-size: 13px; color: rgba(245,240,230,0.65);">Upright · Slant · Marker</div>
+            <div class="display" style="font-size: 42px; color: var(--cream); margin-top: auto;">$45</div>
+          </div>
+          <div style="background: var(--forest); padding: 36px 28px; display: flex; flex-direction: column; gap: 14px;">
+            <div class="eyebrow eyebrow--gold">Medium</div>
+            <div style="font-size: 13px; color: rgba(245,240,230,0.65);">Double upright · Double slant</div>
+            <div class="display" style="font-size: 42px; color: var(--cream); margin-top: auto;">$60</div>
+          </div>
+          <div style="background: var(--forest); padding: 36px 28px; display: flex; flex-direction: column; gap: 14px;">
+            <div class="eyebrow eyebrow--gold">Large</div>
+            <div style="font-size: 13px; color: rgba(245,240,230,0.65);">Obelisk</div>
+            <div class="display" style="font-size: 42px; color: var(--cream); margin-top: auto;">$75</div>
+          </div>
+          <div style="background: var(--forest); padding: 36px 28px; display: flex; flex-direction: column; gap: 14px;">
+            <div class="eyebrow eyebrow--gold">Family plot</div>
+            <div style="font-size: 13px; color: rgba(245,240,230,0.65);">By visit — quoted on site</div>
+            <div class="display" style="font-size: 42px; color: var(--cream); margin-top: auto;">Quote</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 40px; display: flex; justify-content: flex-end;">
+          <a href="services.html" class="btn btn--on-dark">See full pricing & add-ons <span class="arrow">&rarr;</span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA ──────────────────────────────────────────────────── -->
+    <section style="padding: 96px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+      <div class="page-wrap">
+        <div style="display: grid; grid-template-columns: 1.5fr auto; gap: 48px; align-items: center;">
+          <div>
+            <h2 class="display" style="font-size: clamp(32px, 4vw, 48px); color: var(--forest); margin: 0;">
+              Ready to have a stone looked after?
+            </h2>
+            <div style="height: 16px;"></div>
+            <p class="body-text" style="margin: 0;">
+              Most bookings are confirmed within a day. Season runs May through October. Veteran flags are always on the house.
+            </p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 14px; align-items: flex-end;">
+            <a href="booking.html" class="btn btn--primary">Book a cleaning <span class="arrow">&rarr;</span></a>
+            <a href="tel:6316048002" style="font-size: 14px; color: var(--stone); letter-spacing: 0.05em;">
+              or call <span style="color: var(--forest); font-family: 'Cormorant Garamond', serif; font-size: 18px;">(631) 604-8002</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-root"></div>
+
+  <script type="text/babel" data-presets="react" src="scripts/shared.jsx"></script>
+  <script type="text/babel" data-presets="react">
+    // Mount nav + footer
+    ReactDOM.createRoot(document.getElementById("nav-root")).render(<Nav current="home" />);
+    ReactDOM.createRoot(document.getElementById("footer-root")).render(<Footer />);
+
+    // Hero B/A is a static stacked layout (no slider) — see #hero-ba in markup.
+
+    // Gallery teaser slider — picks a random pair from the pool each load
+    const BA_PAIRS = [
+      { before: "images/ba/leedham-before.jpeg", after: "images/ba/leedham-after.jpeg" },
+      // Add more pairs here as they come in — they'll be randomly selected each visit.
+    ];
+    const teaserPair = BA_PAIRS[Math.floor(Math.random() * BA_PAIRS.length)];
+    ReactDOM.createRoot(document.getElementById("gallery-teaser-ba")).render(
+      <BASlider
+        before={teaserPair.before}
+        after={teaserPair.after}
+        aspect="2.2/1"
+        beforeLabel="Before"
+        afterLabel="After"
+      />
+    );
+
+    // Render Finder teaser cells
+    (function renderTeaserCells() {
+      const ROWS = ["A","B","C","D","E","F","G","H","I","J"];
+      const SECTIONS = [1,2,3];
+      const g = document.getElementById("finder-teaser-cells");
+      if (!g) return;
+      const ns = "http://www.w3.org/2000/svg";
+      ROWS.forEach((row, i) => {
+        SECTIONS.forEach((s, j) => {
+          const x = 405 + i * 70, y = 120 + j * 220;
+          const rect = document.createElementNS(ns, "rect");
+          rect.setAttribute("class", "cl-zone");
+          rect.setAttribute("x", x); rect.setAttribute("y", y);
+          rect.setAttribute("width", 58); rect.setAttribute("height", 220);
+          g.appendChild(rect);
+          const t = document.createElementNS(ns, "text");
+          t.setAttribute("class", "cl-zone-label");
+          t.setAttribute("x", x + 29); t.setAttribute("y", y + 110);
+          t.textContent = row + s;
+          g.appendChild(t);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

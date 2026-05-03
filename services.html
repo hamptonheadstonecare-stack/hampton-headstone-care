@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Services & Pricing — Hampton Headstone Care</title>
+  <meta name="description" content="Per-stone pricing for headstone cleaning. Add-ons, maintenance plans, and gentle care for monuments, statues, patios, and other stonework on the East End." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="nav-root"></div>
+
+  <main>
+    <!-- Header -->
+    <section style="padding: 120px 0 80px; border-bottom: 1px solid var(--rule);">
+      <div class="page-wrap">
+        <div class="eyebrow">Services & pricing</div>
+        <div style="height: 16px;"></div>
+        <h1 class="display" style="font-size: clamp(48px, 6vw, 80px); color: var(--forest); margin: 0;">
+          Per-stone pricing.<br>No subscriptions.
+        </h1>
+        <div style="height: 24px;"></div>
+        <p class="body-text" style="font-size: 16px; max-width: 640px;">
+          Every cleaning is priced by the stone. Add-ons are optional. Veteran flag placement is always on the house.
+        </p>
+      </div>
+    </section>
+
+    <!-- Pricing table -->
+    <section class="section">
+      <div class="page-wrap">
+        <div style="display: grid; grid-template-columns: 1fr 1.6fr 0.6fr; padding: 14px 0; border-bottom: 1px solid var(--forest); gap: 24px;">
+          <div class="eyebrow">Size</div>
+          <div class="eyebrow">Description</div>
+          <div class="eyebrow" style="text-align: right;">Price</div>
+        </div>
+
+        <div class="services-row" style="display: grid; grid-template-columns: 1fr 1.6fr 0.6fr; gap: 24px; padding: 32px 0; border-bottom: 1px solid var(--rule); align-items: baseline;">
+          <div>
+            <div class="display" style="font-size: 30px; color: var(--forest);">Small</div>
+            <div style="font-size: 12px; color: var(--stone); margin-top: 4px; letter-spacing: 0.05em;">Single upright · slant · marker</div>
+          </div>
+          <p class="body-text" style="margin: 0; font-size: 14px;">Hand-cleaned with D/2. Rinsed, dried, and photographed.</p>
+          <div class="display" style="font-size: 36px; color: var(--gold); text-align: right;">$45</div>
+        </div>
+
+        <div class="services-row" style="display: grid; grid-template-columns: 1fr 1.6fr 0.6fr; gap: 24px; padding: 32px 0; border-bottom: 1px solid var(--rule); align-items: baseline;">
+          <div>
+            <div class="display" style="font-size: 30px; color: var(--forest);">Medium</div>
+            <div style="font-size: 12px; color: var(--stone); margin-top: 4px; letter-spacing: 0.05em;">Double upright · slant · marker</div>
+          </div>
+          <p class="body-text" style="margin: 0; font-size: 14px;">A little more surface, the same level of care.</p>
+          <div class="display" style="font-size: 36px; color: var(--gold); text-align: right;">$60</div>
+        </div>
+
+        <div class="services-row" style="display: grid; grid-template-columns: 1fr 1.6fr 0.6fr; gap: 24px; padding: 32px 0; border-bottom: 1px solid var(--rule); align-items: baseline;">
+          <div>
+            <div class="display" style="font-size: 30px; color: var(--forest);">Large</div>
+            <div style="font-size: 12px; color: var(--stone); margin-top: 4px; letter-spacing: 0.05em;">Obelisk or monument</div>
+          </div>
+          <p class="body-text" style="margin: 0; font-size: 14px;">Tall stones cleaned top to base, including carved detail.</p>
+          <div class="display" style="font-size: 36px; color: var(--gold); text-align: right;">$75</div>
+        </div>
+
+        <div class="services-row" style="display: grid; grid-template-columns: 1fr 1.6fr 0.6fr; gap: 24px; padding: 32px 0; border-bottom: 1px solid var(--rule); align-items: baseline;">
+          <div>
+            <div class="display" style="font-size: 30px; color: var(--forest);">Family plot</div>
+            <div style="font-size: 12px; color: var(--stone); margin-top: 4px; letter-spacing: 0.05em;">Multiple stones, shared site</div>
+          </div>
+          <p class="body-text" style="margin: 0; font-size: 14px;">Priced on visit. Usually two to five stones.</p>
+          <div class="display" style="font-size: 36px; color: var(--gold); text-align: right;">Quote</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Add-ons -->
+    <section style="padding: 96px 0; background: var(--cream); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);">
+      <div class="page-wrap">
+        <div class="eyebrow">Add-ons & maintenance</div>
+        <div style="height: 14px;"></div>
+        <h2 class="display" style="font-size: clamp(34px, 4vw, 52px); color: var(--forest); margin: 0;">
+          Optional extras.
+        </h2>
+        <div style="height: 48px;"></div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule);">
+          <div style="background: var(--cream); padding: 28px 30px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+            <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--forest);">Weeding & clearing around plot</div>
+            <div class="display" style="font-size: 28px; color: var(--gold);">+$25</div>
+          </div>
+          <div style="background: var(--cream); padding: 28px 30px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+            <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--forest);">Fresh flower arrangement</div>
+            <div class="display" style="font-size: 28px; color: var(--gold);">+$35</div>
+          </div>
+          <div style="background: var(--cream); padding: 28px 30px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+            <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--forest);">Full plot tidy (weed + flowers)</div>
+            <div class="display" style="font-size: 28px; color: var(--gold);">+$60</div>
+          </div>
+          <div style="background: var(--cream); padding: 28px 30px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+            <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--forest);">Veteran flag placement</div>
+            <div class="display" style="font-size: 22px; color: var(--moss-light); letter-spacing: 0.05em;">Always free</div>
+          </div>
+        </div>
+
+        <!-- Maintenance plan -->
+        <div style="margin-top: 40px; padding: 40px 44px; background: var(--forest); color: var(--cream); display: grid; grid-template-columns: 1.4fr auto; gap: 32px; align-items: center;">
+          <div>
+            <div class="eyebrow eyebrow--gold">Annual maintenance plan</div>
+            <div style="height: 12px;"></div>
+            <div class="display" style="font-size: clamp(28px, 3vw, 36px); color: var(--cream); margin: 0;">
+              Two visits a year &mdash; spring and fall.
+            </div>
+            <div style="height: 14px;"></div>
+            <p class="body-text" style="color: rgba(245,240,230,0.8); margin: 0; font-size: 14px;">
+              Each visit includes the cleaning, weeding, and fresh flowers. Priced at exactly what two individual visits would cost &mdash; no discount, just the peace of mind that it's already taken care of.
+            </p>
+          </div>
+          <div style="text-align: right;">
+            <div class="display" style="font-size: clamp(40px, 5vw, 64px); color: var(--gold-light);">2× visit</div>
+            <div style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(245,240,230,0.6);">per year</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Beyond headstones -->
+    <section id="beyond" class="section">
+      <div class="page-wrap">
+        <div style="display: grid; grid-template-columns: 1fr 1.4fr; gap: 80px; align-items: start;">
+          <div>
+            <div class="eyebrow">Beyond headstones</div>
+            <div style="height: 16px;"></div>
+            <h2 class="display" style="font-size: clamp(34px, 4vw, 52px); color: var(--forest); margin: 0;">
+              Other stone, looked after the same way.
+            </h2>
+            <div style="height: 24px;"></div>
+            <p class="body-text" style="margin: 0;">
+              Headstones will always be the heart of what we do. But the same patience and gentle methods work on the rest of the stone in your life.
+            </p>
+            <div style="height: 24px;"></div>
+            <p class="body-text" style="margin: 0; font-size: 14px; color: var(--stone);">
+              These are quoted on a per-job basis &mdash; reach out and we'll come look.
+            </p>
+          </div>
+          <div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--rule);">
+              <div style="padding: 22px 4px; border-bottom: 1px solid var(--rule);">
+                <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--forest);">Monuments & obelisks</div>
+                <div style="font-size: 12px; color: var(--stone); margin-top: 4px;">Hand-cleaned, no harsh chemicals</div>
+              </div>
+              <div style="padding: 22px 4px; padding-left: 32px; border-bottom: 1px solid var(--rule);">
+                <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--forest);">Statues & fountains</div>
+                <div style="font-size: 12px; color: var(--stone); margin-top: 4px;">Garden, memorial, decorative</div>
+              </div>
+              <div style="padding: 22px 4px; border-bottom: 1px solid var(--rule);">
+                <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--forest);">Stone benches & pedestals</div>
+                <div style="font-size: 12px; color: var(--stone); margin-top: 4px;">Memorial benches a specialty</div>
+              </div>
+              <div style="padding: 22px 4px; padding-left: 32px; border-bottom: 1px solid var(--rule);">
+                <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--forest);">Patios & walkways</div>
+                <div style="font-size: 12px; color: var(--stone); margin-top: 4px;">Bluestone, slate, brick, paver</div>
+              </div>
+              <div style="padding: 22px 4px; border-bottom: 1px solid var(--rule);">
+                <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--forest);">Pool decks & pavers</div>
+                <div style="font-size: 12px; color: var(--stone); margin-top: 4px;">Algae, mildew, surface dirt</div>
+              </div>
+              <div style="padding: 22px 4px; padding-left: 32px; border-bottom: 1px solid var(--rule);">
+                <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--forest);">Retaining & stone walls</div>
+                <div style="font-size: 12px; color: var(--stone); margin-top: 4px;">Field stone, dressed stone</div>
+              </div>
+            </div>
+            <div style="margin-top: 32px;">
+              <a href="contact.html?topic=quote" class="btn">Request a quote <span class="arrow">&rarr;</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Process -->
+    <section style="padding: 96px 0; background: var(--cream); border-top: 1px solid var(--rule);">
+      <div class="page-wrap">
+        <div style="margin-bottom: 56px;">
+          <div class="eyebrow">How it works</div>
+          <div style="height: 14px;"></div>
+          <h2 class="display" style="font-size: clamp(34px, 4vw, 52px); color: var(--forest); margin: 0;">
+            From first call to final photo.
+          </h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule);">
+          <div style="background: var(--cream); padding: 40px 28px;">
+            <div class="display" style="font-size: 42px; color: var(--gold);">01</div>
+            <div style="height: 12px;"></div>
+            <div class="display" style="font-size: 22px; color: var(--forest);">You book</div>
+            <div style="height: 10px;"></div>
+            <p class="body-text" style="font-size: 13px; margin: 0;">A short form &mdash; stone size, add-ons, and who we're caring for. Takes about two minutes.</p>
+          </div>
+          <div style="background: var(--cream); padding: 40px 28px;">
+            <div class="display" style="font-size: 42px; color: var(--gold);">02</div>
+            <div style="height: 12px;"></div>
+            <div class="display" style="font-size: 22px; color: var(--forest);">I confirm</div>
+            <div style="height: 10px;"></div>
+            <p class="body-text" style="font-size: 13px; margin: 0;">I respond within a day with a visit date. Most cleanings happen within the week.</p>
+          </div>
+          <div style="background: var(--cream); padding: 40px 28px;">
+            <div class="display" style="font-size: 42px; color: var(--gold);">03</div>
+            <div style="height: 12px;"></div>
+            <div class="display" style="font-size: 22px; color: var(--forest);">I show up</div>
+            <div style="height: 10px;"></div>
+            <p class="body-text" style="font-size: 13px; margin: 0;">Hand tools, D/2, soft brushes, water. No chemicals that hurt the stone.</p>
+          </div>
+          <div style="background: var(--cream); padding: 40px 28px;">
+            <div class="display" style="font-size: 42px; color: var(--gold);">04</div>
+            <div style="height: 12px;"></div>
+            <div class="display" style="font-size: 22px; color: var(--forest);">You receive photos</div>
+            <div style="height: 10px;"></div>
+            <p class="body-text" style="font-size: 13px; margin: 0;">Before and after, emailed the same day. Every time.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section style="padding: 96px 0; text-align: center;">
+      <div class="page-wrap">
+        <h2 class="display" style="font-size: clamp(32px, 4vw, 48px); color: var(--forest); margin: 0;">
+          Ready when you are.
+        </h2>
+        <div style="height: 24px;"></div>
+        <a href="booking.html" class="btn btn--primary">Start a booking <span class="arrow">&rarr;</span></a>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-root"></div>
+
+  <script type="text/babel" data-presets="react" src="scripts/shared.jsx"></script>
+  <script type="text/babel" data-presets="react">
+    ReactDOM.createRoot(document.getElementById("nav-root")).render(<Nav current="services" />);
+    ReactDOM.createRoot(document.getElementById("footer-root")).render(<Footer />);
+  </script>
+</body>
+</html>

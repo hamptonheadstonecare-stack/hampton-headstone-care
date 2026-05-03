@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Before & After Gallery — Hampton Headstone Care</title>
+  <meta name="description" content="A growing collection of headstone cleanings from East Hampton, Springs, and Amagansett. Drag any slider to see the difference." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="nav-root"></div>
+
+  <main>
+    <!-- Header -->
+    <section style="padding: 120px 0 64px; border-bottom: 1px solid var(--rule);">
+      <div class="page-wrap">
+        <div class="eyebrow">Before & after</div>
+        <div style="height: 16px;"></div>
+        <h1 class="display" style="font-size: clamp(48px, 6vw, 84px); color: var(--forest); margin: 0;">
+          The same stone,<br>the same morning.
+        </h1>
+        <div style="height: 24px;"></div>
+        <p class="body-text" style="font-size: 16px; max-width: 640px;">
+          Drag any slider below to see the difference. Every cleaning is documented this way and emailed to the family the same day.
+        </p>
+      </div>
+    </section>
+
+    <!-- Gallery grid -->
+    <section class="section">
+      <div class="page-wrap">
+        <div id="gallery-root"></div>
+      </div>
+    </section>
+
+    <!-- Note about more coming -->
+    <section style="padding: 64px 0 96px; background: var(--cream); border-top: 1px solid var(--rule); text-align: center;">
+      <div class="page-wrap">
+        <div class="eyebrow">More on the way</div>
+        <div style="height: 16px;"></div>
+        <p class="body-text" style="margin: 0 auto; max-width: 540px;">
+          The gallery is added to after every visit. If you'd like your stone cleaned and documented, the booking form is open.
+        </p>
+        <div style="height: 32px;"></div>
+        <a href="booking.html" class="btn btn--primary">Book a cleaning <span class="arrow">&rarr;</span></a>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-root"></div>
+
+  <script type="text/babel" data-presets="react" src="scripts/shared.jsx"></script>
+  <script type="text/babel" data-presets="react">
+    ReactDOM.createRoot(document.getElementById("nav-root")).render(<Nav current="gallery" />);
+    ReactDOM.createRoot(document.getElementById("footer-root")).render(<Footer />);
+
+    // Gallery data — add new pairs here as they come in.
+    const PAIRS = [
+      {
+        before: "images/ba/leedham-before.jpeg",
+        after: "images/ba/leedham-after.jpeg",
+        name: "Louis J. Leedham",
+        years: "1901 – 1985",
+        place: "Cedar Lawn Cemetery · East Hampton",
+      },
+    ];
+
+    // Placeholders so the grid feels established. Real photos replace these as they come.
+    const PLACEHOLDERS = [
+      { name: "Coming soon", years: "", place: "" },
+      { name: "Coming soon", years: "", place: "" },
+      { name: "Coming soon", years: "", place: "" },
+    ];
+
+    function GalleryPair({ pair }) {
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          <BASlider
+            before={pair.before}
+            after={pair.after}
+            aspect="4/3"
+            beforeLabel="Before"
+            afterLabel="After"
+          />
+          <div>
+            <div className="display" style={{ fontSize: 24, color: "var(--forest)" }}>{pair.name}</div>
+            {pair.years && (
+              <div className="display-italic" style={{ fontSize: 16, color: "var(--gold)", marginTop: 2 }}>{pair.years}</div>
+            )}
+            {pair.place && (
+              <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--stone)", marginTop: 8 }}>
+                {pair.place}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function GalleryPlaceholder({ idx }) {
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          <Placeholder label={`Cleaning #${idx + 2} — coming soon`} aspect="4/3" />
+          <div>
+            <div className="display" style={{ fontSize: 24, color: "var(--forest)", opacity: 0.5 }}>Coming soon</div>
+            <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--stone)", marginTop: 8 }}>
+              Added after each visit
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function Gallery() {
+      return (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 56 }}>
+          {PAIRS.map((p, i) => <GalleryPair key={i} pair={p} />)}
+          {PLACEHOLDERS.map((_, i) => <GalleryPlaceholder key={"ph" + i} idx={i} />)}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("gallery-root")).render(<Gallery />);
+  </script>
+</body>
+</html>

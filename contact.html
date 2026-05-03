@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact — Hampton Headstone Care</title>
+  <meta name="description" content="Get in touch about a cleaning, a quote, or a question. By Jason Bono · East Hampton, NY." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="nav-root"></div>
+
+  <main>
+    <!-- Header + contact details -->
+    <section style="padding: 120px 0 80px; border-bottom: 1px solid var(--rule);">
+      <div class="page-wrap">
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 80px; align-items: end;">
+          <div>
+            <div class="eyebrow">Get in touch</div>
+            <div style="height: 16px;"></div>
+            <h1 class="display" style="font-size: clamp(48px, 6vw, 84px); color: var(--forest); margin: 0;">
+              Always happy<br>to hear from you.
+            </h1>
+            <div style="height: 24px;"></div>
+            <p class="body-text" style="font-size: 16px; max-width: 540px; margin: 0;">
+              Whether it's a cleaning, a quote on other stonework, or a question about a stone you'd like to find &mdash; reach out by phone, email, or the form below.
+            </p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+            <div>
+              <div class="eyebrow">Phone</div>
+              <div style="height: 8px;"></div>
+              <a href="tel:6316048002" style="font-family: 'Cormorant Garamond', serif; font-size: 32px; color: var(--forest); text-decoration: none;">
+                (631) 604-8002
+              </a>
+            </div>
+            <div>
+              <div class="eyebrow">Email</div>
+              <div style="height: 8px;"></div>
+              <a href="mailto:HamptonHeadstoneCare@gmail.com" style="font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--forest); text-decoration: none; word-break: break-word;">
+                hamptonheadstonecare@gmail.com
+              </a>
+            </div>
+            <div>
+              <div class="eyebrow">Service area</div>
+              <div style="height: 8px;"></div>
+              <div style="font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--forest);">
+                East Hampton · Springs · Amagansett · Wainscott
+              </div>
+              <div style="font-size: 13px; color: var(--stone); margin-top: 4px;">
+                Other East End towns by request.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact form -->
+    <section class="section">
+      <div class="page-wrap" style="max-width: 760px;">
+        <div id="form-root"></div>
+      </div>
+    </section>
+
+    <!-- Hours / response note -->
+    <section style="padding: 64px 0 96px; background: var(--cream); border-top: 1px solid var(--rule); text-align: center;">
+      <div class="page-wrap" style="max-width: 580px;">
+        <p class="body-text" style="margin: 0;">
+          Most messages are answered within a day. Cleaning visits run May through October &mdash; the rest of the year is for quoting and planning.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-root"></div>
+
+  <script type="text/babel" data-presets="react" src="scripts/shared.jsx"></script>
+  <script type="text/babel" data-presets="react">
+    // useState already declared at top of shared.jsx (shared scope)
+
+    ReactDOM.createRoot(document.getElementById("nav-root")).render(<Nav current="contact" />);
+    ReactDOM.createRoot(document.getElementById("footer-root")).render(<Footer />);
+
+    function ContactForm() {
+      const params = new URLSearchParams(window.location.search);
+      const presetTopic = params.get("topic");
+      const initialTopic = presetTopic === "quote" ? "Other stonework (patio, walls, statue, etc.)"
+                          : presetTopic === "finder" ? "Question about a stone I'd like to find"
+                          : presetTopic === "cleaning" ? "Headstone cleaning"
+                          : "";
+      const [data, setData] = useState({ topic: initialTopic });
+      const [done, setDone] = useState(false);
+
+      const set = (k) => (e) => setData({ ...data, [k]: e.target.value });
+
+      const submit = (e) => {
+        e.preventDefault();
+        if (!data.name || !data.email) return;
+        window.submitForm("contact", data);
+        setDone(true);
+      };
+
+      if (done) {
+        return (
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <Mark size={48} />
+            <div style={{ height: 24 }} />
+            <div className="eyebrow">Message received</div>
+            <div style={{ height: 12 }} />
+            <h2 className="display" style={{ fontSize: "clamp(32px, 4vw, 48px)", color: "var(--forest)", margin: 0 }}>
+              Thank you, {data.name?.split(" ")[0] || "friend"}.
+            </h2>
+            <div style={{ height: 16 }} />
+            <p className="body-text" style={{ margin: "0 auto", maxWidth: 480 }}>
+              I'll get back to you within a day. For anything urgent, the phone is the fastest way &mdash; <span style={{ color: "var(--forest)", fontFamily: "'Cormorant Garamond', serif", fontSize: 18 }}>(631) 604-8002</span>.
+            </p>
+          </div>
+        );
+      }
+
+      return (
+        <form onSubmit={submit}>
+          <div className="eyebrow">Send a message</div>
+          <div style={{ height: 14 }} />
+          <h2 className="display" style={{ fontSize: "clamp(28px, 3vw, 36px)", color: "var(--forest)", margin: 0 }}>
+            What can I help with?
+          </h2>
+          <div style={{ height: 36 }} />
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28 }}>
+            <div>
+              <div className="field-label">Your name</div>
+              <input className="field-input" required value={data.name || ""} onChange={set("name")} />
+            </div>
+            <div>
+              <div className="field-label">Phone (optional)</div>
+              <input className="field-input" value={data.phone || ""} onChange={set("phone")} />
+            </div>
+            <div style={{ gridColumn: "1 / -1" }}>
+              <div className="field-label">Email</div>
+              <input className="field-input" type="email" required value={data.email || ""} onChange={set("email")} />
+            </div>
+            <div style={{ gridColumn: "1 / -1" }}>
+              <div className="field-label">What's this about?</div>
+              <select className="field-select" value={data.topic || ""} onChange={set("topic")}>
+                <option value="">—</option>
+                <option>Headstone cleaning</option>
+                <option>Other stonework (patio, walls, statue, etc.)</option>
+                <option>Question about a stone I'd like to find</option>
+                <option>Maintenance plan</option>
+                <option>Something else</option>
+              </select>
+            </div>
+            <div style={{ gridColumn: "1 / -1" }}>
+              <div className="field-label">Message</div>
+              <textarea className="field-textarea" rows="5" value={data.message || ""} onChange={set("message")} />
+            </div>
+          </div>
+
+          <div style={{ marginTop: 36, paddingTop: 24, borderTop: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <p style={{ fontSize: 12, color: "var(--stone)", margin: 0, maxWidth: 380 }}>
+              No data is shared. Used only to get back to you.
+            </p>
+            <button type="submit" className="btn btn--primary">
+              Send message <span className="arrow">&rarr;</span>
+            </button>
+          </div>
+        </form>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("form-root")).render(<ContactForm />);
+  </script>
+</body>
+</html>

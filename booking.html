@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book a Cleaning — Hampton Headstone Care</title>
+  <meta name="description" content="Five short steps. Stone size, add-ons, who you're caring for, and how to reach you. About two minutes." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="nav-root"></div>
+  <main><div id="booking-root"></div></main>
+  <div id="footer-root"></div>
+
+  <script type="text/babel" data-presets="react" src="scripts/shared.jsx"></script>
+  <script type="text/babel" data-presets="react">
+    // useState, useMemo, Fragment already declared at top of shared.jsx (shared scope)
+
+    ReactDOM.createRoot(document.getElementById("nav-root")).render(<Nav current="booking" />);
+    ReactDOM.createRoot(document.getElementById("footer-root")).render(<Footer />);
+
+    const STONE_SIZES = [
+      { id: "small",  name: "Small",       sub: "Single upright, slant, or marker", price: 45 },
+      { id: "medium", name: "Medium",      sub: "Double upright or slant",          price: 60 },
+      { id: "large",  name: "Large",       sub: "Obelisk or tall monument",         price: 75 },
+      { id: "family", name: "Family plot", sub: "Multiple stones — quoted on visit", price: null },
+    ];
+    const ADDONS = [
+      { id: "weeding",  name: "Weeding & clearing around plot",  price: 25 },
+      { id: "flowers",  name: "Fresh flower arrangement",         price: 35 },
+      { id: "tidy",     name: "Full plot tidy (weed + flowers)",  price: 60 },
+      { id: "maintenance", name: "Annual maintenance plan", priceCalc: "2xVisit", note: "Two visits / year — spring + fall" },
+      { id: "flag",     name: "Veteran flag placement",          price: 0, note: "Always complimentary" },
+    ];
+    const STEPS = [
+      { id: "size", label: "Stone" },
+      { id: "addons", label: "Add-ons" },
+      { id: "deceased", label: "The person" },
+      { id: "contact", label: "Your contact" },
+      { id: "review", label: "Review" },
+    ];
+
+    function priceFor(addon, sizeObj) {
+      if (addon.priceCalc === "2xVisit") {
+        if (!sizeObj || sizeObj.price === null) return "Quote";
+        return `+$${(sizeObj.price + 60) * 2}`;
+      }
+      if (addon.price === 0) return "Free";
+      if (typeof addon.price === "number") return `+$${addon.price}`;
+      return addon.price;
+    }
+    const addonColor = (a) => a.price === 0 ? "var(--moss-light)" : "var(--gold)";
+
+    function ProgressRail({ step }) {
+      return (
+        <div className="rail">
+          {STEPS.map((s, i) => (
+            <Fragment key={s.id}>
+              <div className={"rail__step" + (i === step ? " is-active" : "") + (i < step ? " is-done" : "")}>
+                <span className="rail__num">{i < step ? "✓" : i + 1}</span>
+                <span>{s.label}</span>
+              </div>
+              {i < STEPS.length - 1 && <div className={"rail__bar" + (i < step ? " is-done" : "")} />}
+            </Fragment>
+          ))}
+        </div>
+      );
+    }
+
+    function StepSize({ data, setData }) {
+      return (
+        <div>
+          <div className="eyebrow">Step one</div>
+          <div style={{ height: 12 }} />
+          <h2 className="display" style={{ fontSize: "clamp(34px, 4vw, 48px)", color: "var(--forest)", margin: 0 }}>
+            What are we caring for?
+          </h2>
+          <div style={{ height: 40 }} />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+            {STONE_SIZES.map(s => (
+              <button key={s.id} className={"tile" + (data.size === s.id ? " is-selected" : "")} onClick={() => setData({ ...data, size: s.id })}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div>
+                    <div className="tile__name">{s.name}</div>
+                    <div className="tile__meta">{s.sub}</div>
+                  </div>
+                  <div className="tile__check">✓</div>
+                </div>
+                <div className="tile__price">{s.price === null ? "Quote" : `$${s.price}`}</div>
+              </button>
+            ))}
+          </div>
+          <div style={{ height: 40 }} />
+          <div className="field-label">Cemetery (optional)</div>
+          <input className="field-input" placeholder="e.g. Cedar Lawn, Green River, St. Luke's…" value={data.cemetery || ""} onChange={(e) => setData({ ...data, cemetery: e.target.value })} />
+        </div>
+      );
+    }
+
+    function StepAddons({ data, setData }) {
+      const sizeObj = STONE_SIZES.find(s => s.id === data.size);
+      const toggle = (id) => {
+        const s = new Set(data.addons || []);
+        s.has(id) ? s.delete(id) : s.add(id);
+        setData({ ...data, addons: [...s] });
+      };
+      return (
+        <div>
+          <div className="eyebrow">Step two</div>
+          <div style={{ height: 12 }} />
+          <h2 className="display" style={{ fontSize: "clamp(34px, 4vw, 48px)", color: "var(--forest)", margin: 0 }}>
+            Anything else while I'm there?
+          </h2>
+          <p className="body-text" style={{ marginTop: 16 }}>All optional. Veteran flag placement is always free.</p>
+          <div style={{ height: 32 }} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {ADDONS.map(a => {
+              const on = (data.addons || []).includes(a.id);
+              return (
+                <button key={a.id} className={"tile" + (on ? " is-selected" : "")} onClick={() => toggle(a.id)} style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 20 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    <span style={{ width: 20, height: 20, border: "1px solid var(--rule)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "var(--gold)", fontFamily: "'Cormorant Garamond', serif", background: on ? "var(--forest)" : "transparent" }}>{on ? "✓" : ""}</span>
+                    <div>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: "var(--forest)" }}>{a.name}</div>
+                      {a.note && <div style={{ fontSize: 11, color: "var(--stone)", letterSpacing: "0.15em", textTransform: "uppercase", marginTop: 2 }}>{a.note}</div>}
+                    </div>
+                  </div>
+                  <div className="display" style={{ fontSize: 22, color: addonColor(a) }}>{priceFor(a, sizeObj)}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    function StepDeceased({ data, setData }) {
+      return (
+        <div>
+          <div className="eyebrow">Step three</div>
+          <div style={{ height: 12 }} />
+          <h2 className="display" style={{ fontSize: "clamp(34px, 4vw, 48px)", color: "var(--forest)", margin: 0 }}>Who are we caring for?</h2>
+          <p className="body-text" style={{ marginTop: 16 }}>A few details so I can find the right stone. Nothing is shared publicly.</p>
+          <div style={{ height: 32 }} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
+            <div><div className="field-label">Full name</div><input className="field-input" value={data.deceasedName || ""} onChange={(e) => setData({ ...data, deceasedName: e.target.value })} /></div>
+            <div><div className="field-label">Relationship to you</div><input className="field-input" placeholder="e.g. grandfather, mother" value={data.relationship || ""} onChange={(e) => setData({ ...data, relationship: e.target.value })} /></div>
+            <div><div className="field-label">Birth year (if known)</div><input className="field-input" placeholder="1942" value={data.birthYear || ""} onChange={(e) => setData({ ...data, birthYear: e.target.value })} /></div>
+            <div><div className="field-label">Death year (if known)</div><input className="field-input" placeholder="2019" value={data.deathYear || ""} onChange={(e) => setData({ ...data, deathYear: e.target.value })} /></div>
+            <div style={{ gridColumn: "1 / -1" }}>
+              <div className="field-label">Anything I should know (optional)</div>
+              <textarea className="field-textarea" placeholder="Veteran? Particular stone condition? A note for me?" value={data.notes || ""} onChange={(e) => setData({ ...data, notes: e.target.value })} />
+            </div>
+            <label style={{ display: "flex", alignItems: "center", gap: 12, gridColumn: "1 / -1", cursor: "pointer", marginTop: 8 }}>
+              <input type="checkbox" checked={!!data.isVeteran} onChange={(e) => setData({ ...data, isVeteran: e.target.checked })} style={{ width: 18, height: 18, accentColor: "var(--forest)" }} />
+              <span style={{ fontSize: 14, color: "var(--dark-stone)" }}>They served. Please place a veteran flag &mdash; <em style={{ color: "var(--moss-light)", fontFamily: "'Cormorant Garamond', serif", fontSize: 17 }}>always complimentary</em>.</span>
+            </label>
+          </div>
+        </div>
+      );
+    }
+
+    function StepContact({ data, setData }) {
+      return (
+        <div>
+          <div className="eyebrow">Step four</div>
+          <div style={{ height: 12 }} />
+          <h2 className="display" style={{ fontSize: "clamp(34px, 4vw, 48px)", color: "var(--forest)", margin: 0 }}>How should I reach you?</h2>
+          <div style={{ height: 32 }} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
+            <div><div className="field-label">Your name</div><input className="field-input" value={data.yourName || ""} onChange={(e) => setData({ ...data, yourName: e.target.value })} /></div>
+            <div><div className="field-label">Phone</div><input className="field-input" placeholder="(631) ___-____" value={data.phone || ""} onChange={(e) => setData({ ...data, phone: e.target.value })} /></div>
+            <div style={{ gridColumn: "1 / -1" }}><div className="field-label">Email</div><input className="field-input" value={data.email || ""} onChange={(e) => setData({ ...data, email: e.target.value })} /></div>
+            <div><div className="field-label">Preferred week</div><input className="field-input" type="date" value={data.preferredDate || ""} onChange={(e) => setData({ ...data, preferredDate: e.target.value })} /></div>
+            <div>
+              <div className="field-label">How did you hear about us?</div>
+              <select className="field-select" value={data.source || ""} onChange={(e) => setData({ ...data, source: e.target.value })}>
+                <option value="">—</option>
+                <option>Word of mouth</option><option>Nextdoor</option><option>Facebook</option>
+                <option>Flyer</option><option>Google</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function StepReview({ data, price }) {
+      const size = STONE_SIZES.find(s => s.id === data.size);
+      const addons = ADDONS.filter(a => (data.addons || []).includes(a.id));
+      return (
+        <div>
+          <div className="eyebrow">Step five</div>
+          <div style={{ height: 12 }} />
+          <h2 className="display" style={{ fontSize: "clamp(34px, 4vw, 48px)", color: "var(--forest)", margin: 0 }}>One last look.</h2>
+          <div style={{ height: 40 }} />
+          <div style={{ border: "1px solid var(--rule)", padding: "36px 40px", background: "var(--warm-white)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, padding: "14px 0", borderBottom: "1px solid var(--rule)" }}>
+              <div className="eyebrow">Stone</div>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: "var(--forest)" }}>
+                {size ? `${size.name} — ${size.sub}` : "—"}
+                <span style={{ color: "var(--gold)", marginLeft: 12 }}>{size?.price === null ? "Quoted" : `$${size?.price || 0}`}</span>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, padding: "14px 0", borderBottom: "1px solid var(--rule)" }}>
+              <div className="eyebrow">Cemetery</div>
+              <div>{data.cemetery || <span style={{ color: "var(--stone)" }}>Not specified</span>}</div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, padding: "14px 0", borderBottom: "1px solid var(--rule)" }}>
+              <div className="eyebrow">Add-ons</div>
+              <div>
+                {addons.length === 0 ? <span style={{ color: "var(--stone)" }}>None</span> :
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    {addons.map(a => (
+                      <div key={a.id} style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span>{a.name}</span>
+                        <span style={{ color: addonColor(a), fontFamily: "'Cormorant Garamond', serif" }}>{priceFor(a, size)}</span>
+                      </div>
+                    ))}
+                  </div>
+                }
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, padding: "14px 0", borderBottom: "1px solid var(--rule)" }}>
+              <div className="eyebrow">In memory of</div>
+              <div>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, color: "var(--forest)" }}>
+                  {data.deceasedName || <span style={{ color: "var(--stone)", fontSize: 15 }}>—</span>}
+                </div>
+                {(data.birthYear || data.deathYear) && <div style={{ color: "var(--stone)", fontSize: 13 }}>{data.birthYear || "?"} – {data.deathYear || "?"}</div>}
+                {data.isVeteran && <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--gold)", marginTop: 6 }}>Veteran · Flag included</div>}
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, padding: "14px 0" }}>
+              <div className="eyebrow">Contact</div>
+              <div><div>{data.yourName}</div><div style={{ color: "var(--stone)", fontSize: 13 }}>{data.email} · {data.phone}</div></div>
+            </div>
+          </div>
+          <div style={{ marginTop: 24, padding: "28px 40px", background: "var(--forest)", color: "var(--cream)", display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+            <div>
+              <div className="eyebrow eyebrow--gold">Estimated total</div>
+              <div style={{ fontSize: 11, color: "rgba(245,240,230,0.6)", marginTop: 4 }}>Final number confirmed on visit · Family plots always quoted</div>
+            </div>
+            <div className="display" style={{ fontSize: 52, color: "var(--cream)" }}>
+              {price.hasQuote ? "Quote" : `$${price.total}`}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function Confirmation({ data, reset }) {
+      return (
+        <div style={{ textAlign: "center", padding: "40px 0" }}>
+          <Mark size={56} />
+          <div style={{ height: 32 }} />
+          <div className="eyebrow">Request received</div>
+          <div style={{ height: 16 }} />
+          <h2 className="display" style={{ fontSize: "clamp(40px, 5vw, 68px)", color: "var(--forest)", margin: 0 }}>
+            Thank you, <span className="display-italic" style={{ color: "var(--gold)" }}>{data.yourName?.split(" ")[0] || "friend"}</span>.
+          </h2>
+          <div style={{ height: 24 }} />
+          <p className="body-text" style={{ margin: "0 auto", maxWidth: 520 }}>
+            I'll reach out within a day to confirm a visit date. You'll receive before and after photos the same day the stone is cleaned.
+          </p>
+          <OrnateDivider />
+          <div style={{ fontSize: 14, color: "var(--stone)" }}>
+            Any questions, call directly &mdash; <span style={{ color: "var(--forest)", fontFamily: "'Cormorant Garamond', serif", fontSize: 18 }}>(631) 604-8002</span>
+          </div>
+          <div style={{ height: 48 }} />
+          <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+            <a href="index.html" className="btn">Back home</a>
+            <button className="btn btn--ghost" onClick={reset}>Start another booking</button>
+          </div>
+        </div>
+      );
+    }
+
+    function ServiceTypeGate({ onChoose }) {
+      const tiles = [
+        {
+          id: "headstone",
+          title: "Headstone or monument",
+          sub: "Cleaning a single stone, double, obelisk, or family plot. Per-stone pricing.",
+          tag: "Continue booking",
+          accent: "var(--gold)",
+        },
+        {
+          id: "other",
+          title: "Other stonework",
+          sub: "Patios, walkways, walls, statues, fountains, pool decks, benches. Quoted on a visit.",
+          tag: "Request a quote",
+          accent: "var(--moss-light)",
+        },
+      ];
+      return (
+        <div>
+          <div className="eyebrow">First, the basics</div>
+          <div style={{ height: 12 }} />
+          <h2 className="display" style={{ fontSize: "clamp(34px, 4vw, 52px)", color: "var(--forest)", margin: 0 }}>
+            What are we caring for?
+          </h2>
+          <p className="body-text" style={{ marginTop: 18, maxWidth: 540 }}>
+            Headstones go through the booking form &mdash; flat per-stone pricing. Anything else gets a quick quote since pricing depends on size, condition, and access.
+          </p>
+          <div style={{ height: 40 }} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+            {tiles.map(t => (
+              <button key={t.id} className="tile" onClick={() => onChoose(t.id)} style={{ minHeight: 240, alignItems: "flex-start", textAlign: "left" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 14, height: "100%", width: "100%" }}>
+                  <div className="display" style={{ fontSize: 28, color: "var(--forest)" }}>{t.title}</div>
+                  <p className="body-text" style={{ margin: 0, fontSize: 14, flex: 1 }}>{t.sub}</p>
+                  <div style={{ marginTop: 12, paddingTop: 14, borderTop: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: t.accent }}>{t.tag}</span>
+                    <span className="arrow" style={{ color: t.accent }}>&rarr;</span>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function Booking() {
+      const [kind, setKind] = useState(null); // null | "headstone" | "other"
+      const [step, setStep] = useState(0);
+      const [done, setDone] = useState(false);
+      const [data, setData] = useState({ addons: [] });
+
+      const price = useMemo(() => {
+        const size = STONE_SIZES.find(s => s.id === data.size);
+        const hasQuote = !size || size.price === null;
+        let total = hasQuote ? 0 : size.price;
+        (data.addons || []).forEach(id => {
+          const a = ADDONS.find(x => x.id === id);
+          if (!a) return;
+          if (a.priceCalc === "2xVisit") {
+            if (!hasQuote) total += (size.price + 60) * 2;
+          } else if (typeof a.price === "number") {
+            total += a.price;
+          }
+        });
+        return { total, hasQuote };
+      }, [data]);
+
+      const canAdvance = () => {
+        if (step === 0) return !!data.size;
+        if (step === 3) return data.yourName && data.email && data.phone;
+        return true;
+      };
+
+      const reset = () => { setData({ addons: [] }); setStep(0); setDone(false); };
+
+      const handleKind = (k) => {
+        if (k === "other") {
+          window.location.href = "contact.html?topic=quote";
+          return;
+        }
+        setKind(k);
+      };
+
+      if (!kind) {
+        return (
+          <div className="page-enter">
+            <section style={{ padding: "100px 0 32px", borderBottom: "1px solid var(--rule)" }}>
+              <div className="page-wrap">
+                <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 48, alignItems: "end" }}>
+                  <div>
+                    <div className="eyebrow">Book a cleaning</div>
+                    <div style={{ height: 16 }} />
+                    <h1 className="display" style={{ fontSize: "clamp(40px, 5vw, 72px)", color: "var(--forest)", margin: 0 }}>
+                      Two minutes, <span className="display-italic" style={{ color: "var(--gold)" }}>and a stone is on the calendar.</span>
+                    </h1>
+                  </div>
+                  <div style={{ borderLeft: "1px solid var(--rule)", paddingLeft: 32 }}>
+                    <div className="eyebrow">Prefer to talk?</div>
+                    <div style={{ height: 10 }} />
+                    <a href="tel:6316048002" style={{ display: "block", fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "var(--forest)", textDecoration: "none", lineHeight: 1.1 }}>
+                      (631) 604-8002
+                    </a>
+                    <div style={{ marginTop: 8, fontSize: 13, color: "var(--stone)" }}>
+                      <a href="tel:6316048002" style={{ color: "var(--gold)", textDecoration: "none" }}>Call</a>
+                      <span style={{ color: "var(--rule)", margin: "0 8px" }}>·</span>
+                      <a href="sms:6316048002" style={{ color: "var(--gold)", textDecoration: "none" }}>Text</a>
+                      <span style={{ color: "var(--stone)", marginLeft: 8 }}>— Jason answers personally</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section className="section">
+              <div className="page-wrap" style={{ maxWidth: 860 }}>
+                <ServiceTypeGate onChoose={handleKind} />
+              </div>
+            </section>
+          </div>
+        );
+      }
+
+      if (done) {
+        return (
+          <div className="page-enter">
+            <section className="section">
+              <div className="page-wrap" style={{ maxWidth: 860 }}>
+                <Confirmation data={data} reset={reset} />
+              </div>
+            </section>
+          </div>
+        );
+      }
+
+      return (
+        <div className="page-enter">
+          <section style={{ padding: "100px 0 32px", borderBottom: "1px solid var(--rule)" }}>
+            <div className="page-wrap">
+              <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 48, alignItems: "end" }}>
+                <div>
+                  <button onClick={() => { setKind(null); setStep(0); setData({ addons: [] }); }} style={{ background: "none", border: 0, padding: 0, color: "var(--gold)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", cursor: "pointer", fontFamily: "inherit" }}>
+                    ← Choose a different service
+                  </button>
+                  <div style={{ height: 14 }} />
+                  <div className="eyebrow">Headstone cleaning</div>
+                  <div style={{ height: 16 }} />
+                  <h1 className="display" style={{ fontSize: "clamp(40px, 5vw, 72px)", color: "var(--forest)", margin: 0 }}>
+                    Five short steps. <span className="display-italic" style={{ color: "var(--gold)" }}>About two minutes.</span>
+                  </h1>
+                </div>
+                <div style={{ borderLeft: "1px solid var(--rule)", paddingLeft: 32 }}>
+                  <div className="eyebrow">Prefer to talk?</div>
+                  <div style={{ height: 10 }} />
+                  <a href="tel:6316048002" style={{ display: "block", fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "var(--forest)", textDecoration: "none", lineHeight: 1.1 }}>
+                    (631) 604-8002
+                  </a>
+                  <div style={{ marginTop: 8, fontSize: 13, color: "var(--stone)" }}>
+                    <a href="tel:6316048002" style={{ color: "var(--gold)", textDecoration: "none" }}>Call</a>
+                    <span style={{ color: "var(--rule)", margin: "0 8px" }}>·</span>
+                    <a href="sms:6316048002" style={{ color: "var(--gold)", textDecoration: "none" }}>Text</a>
+                    <span style={{ color: "var(--stone)", marginLeft: 8 }}>— Jason answers personally</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section className="section">
+            <div className="page-wrap" style={{ maxWidth: 860 }}>
+              <ProgressRail step={step} />
+              <div>
+                {step === 0 && <StepSize data={data} setData={setData} />}
+                {step === 1 && <StepAddons data={data} setData={setData} />}
+                {step === 2 && <StepDeceased data={data} setData={setData} />}
+                {step === 3 && <StepContact data={data} setData={setData} />}
+                {step === 4 && <StepReview data={data} price={price} />}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 56, paddingTop: 32, borderTop: "1px solid var(--rule)" }}>
+                <button className="btn btn--ghost" onClick={() => setStep(Math.max(0, step - 1))} style={{ opacity: step === 0 ? 0.3 : 1, pointerEvents: step === 0 ? "none" : "auto" }}>← Back</button>
+                <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+                  {data.size && (
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--stone)" }}>Running total</div>
+                      <div className="display" style={{ fontSize: 26, color: "var(--forest)" }}>
+                        {price.hasQuote ? "Quote" : `$${price.total}`}
+                      </div>
+                    </div>
+                  )}
+                  {step < STEPS.length - 1 ?
+                    <button className="btn btn--primary" onClick={() => setStep(step + 1)} disabled={!canAdvance()} style={{ opacity: canAdvance() ? 1 : 0.4, pointerEvents: canAdvance() ? "auto" : "none" }}>Continue <span className="arrow">&rarr;</span></button> :
+                    <button className="btn btn--primary" onClick={() => { window.submitForm("booking", { ...data, estimatedTotal: price.hasQuote ? "Quote" : price.total }); setDone(true); }}>Submit request <span className="arrow">&rarr;</span></button>
+                  }
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("booking-root")).render(<Booking />);
+  </script>
+</body>
+</html>
