@@ -438,6 +438,9 @@ button { font-family: inherit; cursor: pointer; }
   .footer__grid { grid-template-columns: 1fr 1fr; gap: 32px; }
   .footer__bottom { flex-direction: column; gap: 12px; }
 }
+@media (max-width: 560px) {
+  .footer__grid { grid-template-columns: 1fr; gap: 36px; }
+}
 
 /* HHC mark */
 .mark {
@@ -698,7 +701,12 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   .hero-split { grid-template-columns: 1fr !important; min-height: auto !important; }
   .hero-split > div { padding: 48px 24px !important; }
   .hero-ba { min-height: 75vw; max-height: 600px; }
-  .display { word-break: break-word; }
+  /* Don't break long brand words mid-character — let them shrink instead */
+  .display { overflow-wrap: break-word; word-break: normal; hyphens: none; }
+  /* Services add-on rows — keep price intact, give it breathing room */
+  .services-addon-row { padding: 22px 22px !important; }
+  .services-addon-row > div:first-child { font-size: 18px !important; line-height: 1.3; min-width: 0; }
+  .services-addon-row > div:last-child { white-space: nowrap; flex-shrink: 0; font-size: 22px !important; }
   .booking-summary-row { grid-template-columns: 1fr 1.6fr !important; gap: 16px !important; }
   .services-row { grid-template-columns: 1fr !important; gap: 8px !important; }
 
@@ -725,4 +733,3 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   .page-wrap { padding: 0 20px !important; }
   .display { font-size: clamp(36px, 11vw, 56px) !important; }
 }
-
