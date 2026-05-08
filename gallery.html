@@ -87,7 +87,10 @@
     ReactDOM.createRoot(document.getElementById("nav-root")).render(<Nav current="gallery" />);
     ReactDOM.createRoot(document.getElementById("footer-root")).render(<Footer />);
 
-    // Gallery data — add new pairs here as they come in.
+    // Gallery data — every pair shows here (this is the full archive).
+    // To also feature a pair on the home page (hero + teaser slider),
+    // add it to BA_PAIRS in index.html — keep that list short and
+    // only your strongest work.
     const PAIRS = [
       {
         before: "images/ba/leedham-before.jpeg",
@@ -96,11 +99,17 @@
         years: "1901 – 1985",
         place: "Cedar Lawn Cemetery · East Hampton",
       },
+      {
+        before: "images/ba/ryan-most-holy-trinity-before.jpeg",
+        after: "images/ba/ryan-most-holy-trinity-after.jpeg",
+        name: "Albert T. & Mary Ryan",
+        years: "1917 – 1970  ·  1925 – 2009",
+        place: "Most Holy Trinity Catholic Cemetery · East Hampton",
+      },
     ];
 
     // Placeholders so the grid feels established. Real photos replace these as they come.
     const PLACEHOLDERS = [
-      { name: "Coming soon", years: "", place: "" },
       { name: "Coming soon", years: "", place: "" },
       { name: "Coming soon", years: "", place: "" },
     ];
