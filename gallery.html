@@ -106,11 +106,18 @@
         years: "1917 – 1970  ·  1925 – 2009",
         place: "Most Holy Trinity Catholic Cemetery · East Hampton",
       },
+      {
+        before: "images/ba/daniels-most-holy-trinity-before.jpeg",
+        after: "images/ba/daniels-most-holy-trinity-after.jpeg",
+        name: "Robert F. & Edith P. Daniels",
+        years: "1928 – 1994  ·  1932 – 2019",
+        place: "Most Holy Trinity Catholic Cemetery · East Hampton",
+      },
     ];
 
     // Placeholders so the grid feels established. Real photos replace these as they come.
+    // Keep the total (PAIRS + PLACEHOLDERS) even so the 2-column grid doesn't leave a gap.
     const PLACEHOLDERS = [
-      { name: "Coming soon", years: "", place: "" },
       { name: "Coming soon", years: "", place: "" },
     ];
 
@@ -142,7 +149,7 @@
     function GalleryPlaceholder({ idx }) {
       return (
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          <Placeholder label={`Cleaning #${idx + 2} — coming soon`} aspect="4/3" />
+          <Placeholder label={`Cleaning #${PAIRS.length + idx + 1} — coming soon`} aspect="4/3" />
           <div>
             <div className="display" style={{ fontSize: 24, color: "var(--forest)", opacity: 0.5 }}>Coming soon</div>
             <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--stone)", marginTop: 8 }}>
