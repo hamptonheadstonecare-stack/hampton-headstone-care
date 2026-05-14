@@ -53,18 +53,23 @@
     ReactDOM.createRoot(document.getElementById("footer-root")).render(<Footer />);
 
     const STONE_SIZES = [
-      { id: "small",  name: "Small",       sub: "Single upright, slant, or marker", price: 45 },
-      { id: "medium", name: "Medium",      sub: "Double upright or slant",          price: 60 },
-      { id: "large",  name: "Large",       sub: "Obelisk or tall monument",         price: 75 },
-      { id: "family", name: "Family plot", sub: "Multiple stones — quoted on visit", price: null },
+      { id: "small",  name: "Small",  sub: "Single upright, slant, or marker", price: 75 },
+      { id: "medium", name: "Medium", sub: "Double upright, slant, or marker", price: 110 },
+      { id: "large",  name: "Large",  sub: "Obelisk or monument",              price: 150 },
     ];
     const ADDONS = [
-      { id: "weeding",  name: "Weeding & clearing around plot",  price: 25 },
-      { id: "flowers",  name: "Fresh flower arrangement",         price: 35 },
-      { id: "tidy",     name: "Full plot tidy (weed + flowers)",  price: 60 },
-      { id: "maintenance", name: "Annual maintenance plan", priceCalc: "2xVisit", note: "Two visits / year — spring + fall" },
-      { id: "flag",     name: "Veteran flag placement",          price: 0, note: "Always complimentary" },
+      { id: "weeding",     name: "Weeding & trimming around plot", price: 25 },
+      { id: "maintenance", name: "Annual maintenance plan", priceCalc: "maintenance", note: "Two visits / year — spring + fall, priority scheduling" },
+      { id: "finder",      name: "Headstone Finder listing",      price: 0, note: "Free" },
+      { id: "flag",        name: "Veteran flag placement",        price: 0, note: "Always complimentary" },
+      { id: "photos",      name: "Before & after photos",         price: 0, note: "Always included" },
     ];
+    // Surcharges only assessed on arrival — listed for transparency, never added to the running total.
+    const SURCHARGES = [
+      { id: "neglect", name: "Heavy neglect / severe lichen", price: 50, note: "Assessed on arrival" },
+      { id: "return",  name: "Second visit / follow-up clean", price: 40, note: "When a stone needs more time" },
+    ];
+    const MAINTENANCE_PRICES = { small: 150, medium: 220, large: 300 };
     const STEPS = [
       { id: "size", label: "Stone" },
       { id: "addons", label: "Add-ons" },
@@ -74,9 +79,9 @@
     ];
 
     function priceFor(addon, sizeObj) {
-      if (addon.priceCalc === "2xVisit") {
-        if (!sizeObj || sizeObj.price === null) return "Quote";
-        return `+$${(sizeObj.price + 60) * 2}`;
+      if (addon.priceCalc === "maintenance") {
+        if (!sizeObj) return "—";
+        return `+$${MAINTENANCE_PRICES[sizeObj.id]}`;
       }
       if (addon.price === 0) return "Free";
       if (typeof addon.price === "number") return `+$${addon.price}`;
@@ -101,6 +106,7 @@
     }
 
     function StepSize({ data, setData }) {
+      const count = Math.max(1, parseInt(data.stoneCount || 1, 10) || 1);
       return (
         <div>
           <div className="eyebrow">Step one</div>
@@ -109,7 +115,7 @@
             What are we caring for?
           </h2>
           <div style={{ height: 40 }} />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
             {STONE_SIZES.map(s => (
               <button key={s.id} className={"tile" + (data.size === s.id ? " is-selected" : "")} onClick={() => setData({ ...data, size: s.id })}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -119,13 +125,26 @@
                   </div>
                   <div className="tile__check">✓</div>
                 </div>
-                <div className="tile__price">{s.price === null ? "Quote" : `$${s.price}`}</div>
+                <div className="tile__price">${s.price}</div>
               </button>
             ))}
           </div>
           <div style={{ height: 40 }} />
-          <div className="field-label">Cemetery (optional)</div>
-          <input className="field-input" placeholder="e.g. Cedar Lawn, Green River, St. Luke's…" value={data.cemetery || ""} onChange={(e) => setData({ ...data, cemetery: e.target.value })} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
+            <div>
+              <div className="field-label">How many stones at this site?</div>
+              <input className="field-input" type="number" min="1" step="1" value={data.stoneCount || 1} onChange={(e) => setData({ ...data, stoneCount: e.target.value })} />
+              {count >= 3 && (
+                <div style={{ marginTop: 10, fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--moss-light)" }}>
+                  3+ stones — $10 off each, applied to your total
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="field-label">Cemetery (optional)</div>
+              <input className="field-input" placeholder="e.g. Cedar Lawn, Green River, St. Luke's…" value={data.cemetery || ""} onChange={(e) => setData({ ...data, cemetery: e.target.value })} />
+            </div>
+          </div>
         </div>
       );
     }
@@ -144,7 +163,7 @@
           <h2 className="display" style={{ fontSize: "clamp(34px, 4vw, 48px)", color: "var(--forest)", margin: 0 }}>
             Anything else while I'm there?
           </h2>
-          <p className="body-text" style={{ marginTop: 16 }}>All optional. Veteran flag placement is always free.</p>
+          <p className="body-text" style={{ marginTop: 16 }}>Veteran flag placement, Headstone Finder listing, and before &amp; after photos are always free.</p>
           <div style={{ height: 32 }} />
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {ADDONS.map(a => {
@@ -162,6 +181,26 @@
                 </button>
               );
             })}
+          </div>
+          <div style={{ height: 40 }} />
+          <div style={{ padding: "22px 26px", background: "var(--warm-white)", border: "1px solid var(--rule)" }}>
+            <div className="eyebrow">Possible surcharges</div>
+            <div style={{ height: 10 }} />
+            <p className="body-text" style={{ margin: 0, fontSize: 13 }}>
+              Only charged if the stone calls for it &mdash; I'll tell you before any work begins.
+            </p>
+            <div style={{ height: 14 }} />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              {SURCHARGES.map(s => (
+                <div key={s.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderTop: "1px solid var(--rule)", paddingTop: 12 }}>
+                  <div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, color: "var(--forest)" }}>{s.name}</div>
+                    <div style={{ fontSize: 10, color: "var(--stone)", letterSpacing: "0.16em", textTransform: "uppercase", marginTop: 2 }}>{s.note}</div>
+                  </div>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 18, color: "var(--gold)" }}>+${s.price}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       );
@@ -232,7 +271,7 @@
               <div className="eyebrow">Stone</div>
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: "var(--forest)" }}>
                 {size ? `${size.name} — ${size.sub}` : "—"}
-                <span style={{ color: "var(--gold)", marginLeft: 12 }}>{size?.price === null ? "Quoted" : `$${size?.price || 0}`}</span>
+                <span style={{ color: "var(--gold)", marginLeft: 12 }}>{size ? `$${size.price}${price.count > 1 ? ` × ${price.count}` : ""}` : ""}</span>
               </div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, padding: "14px 0", borderBottom: "1px solid var(--rule)" }}>
@@ -254,6 +293,15 @@
                 }
               </div>
             </div>
+            {price.multiDiscount > 0 && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, padding: "14px 0", borderBottom: "1px solid var(--rule)" }}>
+                <div className="eyebrow">Multi-stone discount</div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span>{price.count} stones at the same site — $10 off each</span>
+                  <span style={{ color: "var(--moss-light)", fontFamily: "'Cormorant Garamond', serif" }}>−${price.multiDiscount}</span>
+                </div>
+              </div>
+            )}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, padding: "14px 0", borderBottom: "1px solid var(--rule)" }}>
               <div className="eyebrow">In memory of</div>
               <div>
@@ -272,7 +320,7 @@
           <div style={{ marginTop: 24, padding: "28px 40px", background: "var(--forest)", color: "var(--cream)", display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
             <div>
               <div className="eyebrow eyebrow--gold">Estimated total</div>
-              <div style={{ fontSize: 11, color: "rgba(245,240,230,0.6)", marginTop: 4 }}>Final number confirmed on visit · Family plots always quoted</div>
+              <div style={{ fontSize: 11, color: "rgba(245,240,230,0.6)", marginTop: 4 }}>Final number confirmed on visit · Surcharges only if needed, agreed before any work</div>
             </div>
             <div className="display" style={{ fontSize: 52, color: "var(--cream)" }}>
               {price.hasQuote ? "Quote" : `$${price.total}`}
@@ -294,7 +342,7 @@
           </h2>
           <div style={{ height: 24 }} />
           <p className="body-text" style={{ margin: "0 auto", maxWidth: 520 }}>
-            I'll reach out within a day to confirm a visit date. You'll receive before and after photos the same day the stone is cleaned.
+            I'll reach out within a day to confirm a visit date. You'll receive before and after photos once the cleaning is complete &mdash; some stones reach a final result in one visit, some take a few sessions.
           </p>
           <OrnateDivider />
           <div style={{ fontSize: 14, color: "var(--stone)" }}>
@@ -314,7 +362,7 @@
         {
           id: "headstone",
           title: "Headstone or monument",
-          sub: "Cleaning a single stone, double, obelisk, or family plot. Per-stone pricing.",
+          sub: "Cleaning a single stone, double, obelisk, or multiple stones at the same site. Per-stone pricing.",
           tag: "Continue booking",
           accent: "var(--gold)",
         },
@@ -363,18 +411,22 @@
 
       const price = useMemo(() => {
         const size = STONE_SIZES.find(s => s.id === data.size);
-        const hasQuote = !size || size.price === null;
-        let total = hasQuote ? 0 : size.price;
+        if (!size) return { total: 0, hasQuote: false, count: 1, baseSubtotal: 0, addonsSubtotal: 0, multiDiscount: 0 };
+        const count = Math.max(1, parseInt(data.stoneCount || 1, 10) || 1);
+        const baseSubtotal = size.price * count;
+        let addonsSubtotal = 0;
         (data.addons || []).forEach(id => {
           const a = ADDONS.find(x => x.id === id);
           if (!a) return;
-          if (a.priceCalc === "2xVisit") {
-            if (!hasQuote) total += (size.price + 60) * 2;
+          if (a.priceCalc === "maintenance") {
+            addonsSubtotal += MAINTENANCE_PRICES[size.id];
           } else if (typeof a.price === "number") {
-            total += a.price;
+            addonsSubtotal += a.price;
           }
         });
-        return { total, hasQuote };
+        const multiDiscount = count >= 3 ? count * 10 : 0;
+        const total = baseSubtotal + addonsSubtotal - multiDiscount;
+        return { total, hasQuote: false, count, baseSubtotal, addonsSubtotal, multiDiscount };
       }, [data]);
 
       const canAdvance = () => {

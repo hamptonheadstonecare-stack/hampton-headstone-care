@@ -56,7 +56,7 @@
           </h1>
           <div style="height: 32px;"></div>
           <p class="body-text" style="color: rgba(245,240,230,0.82); max-width: 440px; margin: 0;">
-            A seasonal service by Jason Bono. Every stone cleaned by hand with D/2 biological solution &mdash; safe for granite, marble, and slate. Before and after photos with every visit.
+            A seasonal service by Jason Bono. Every stone cleaned by hand with D/2 biological solution &mdash; safe for granite, marble, and slate. Every visit documented with before and after photos.
           </p>
         </div>
         <div class="hero-cta-row" style="display: flex; flex-wrap: wrap; align-items: center; gap: 32px; row-gap: 20px;">
@@ -73,14 +73,14 @@
           </div>
         </div>
       </div>
-      <div id="hero-ba" class="hero-ba" style="background: var(--charcoal); position: relative; display: grid; grid-template-rows: 1fr 1fr; gap: 1px;">
-        <div style="position: relative; overflow: hidden; background: var(--charcoal);">
-          <img src="images/ba/leedham-before.jpeg" alt="Headstone before cleaning" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
-          <span style="position: absolute; top: 14px; left: 14px; font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; padding: 6px 14px; background: rgba(30,43,26,0.78); color: var(--cream); backdrop-filter: blur(4px);">Before</span>
+      <div id="hero-ba" class="hero-ba" style="background: var(--charcoal); position: relative; display: grid; grid-template-rows: 1fr 1fr; gap: 1px; min-height: 0; height: 100%;">
+        <div style="position: relative; overflow: hidden; background: var(--charcoal); min-height: 0;">
+          <img id="hero-before-img" src="images/ba/leedham-before.jpeg" alt="Headstone before cleaning" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;" />
+          <span style="position: absolute; top: 14px; left: 14px; font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; padding: 6px 14px; background: rgba(30,43,26,0.78); color: var(--cream); backdrop-filter: blur(4px); z-index: 1;">Before</span>
         </div>
-        <div style="position: relative; overflow: hidden; background: var(--charcoal);">
-          <img src="images/ba/leedham-after.jpeg" alt="Headstone after cleaning" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
-          <span style="position: absolute; top: 14px; left: 14px; font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; padding: 6px 14px; background: rgba(184,154,90,0.92); color: var(--forest);">After</span>
+        <div style="position: relative; overflow: hidden; background: var(--charcoal); min-height: 0;">
+          <img id="hero-after-img" src="images/ba/leedham-after.jpeg" alt="Headstone after cleaning" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;" />
+          <span style="position: absolute; top: 14px; left: 14px; font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; padding: 6px 14px; background: rgba(184,154,90,0.92); color: var(--forest); z-index: 1;">After</span>
         </div>
       </div>
     </section>
@@ -189,11 +189,11 @@
             <div class="eyebrow">Before & after</div>
             <div style="height: 14px;"></div>
             <h2 class="display" style="font-size: clamp(36px, 5vw, 56px); color: var(--forest); margin: 0;">
-              The same stone, the same morning.
+              See the difference, stone by stone.
             </h2>
           </div>
           <p class="body-text" style="margin: 0; align-self: end;">
-            Drag the slider to see the difference. Every cleaning is documented this way &mdash; so you can see the care for yourself.
+            Drag the slider to see the change. The after photo shows the finished result &mdash; some stones reach it in one visit, some take a few sessions.
           </p>
         </div>
         <div id="gallery-teaser-ba"></div>
@@ -263,23 +263,23 @@
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(212,184,122,0.2); border: 1px solid rgba(212,184,122,0.2);">
           <div style="background: var(--forest); padding: 36px 28px; display: flex; flex-direction: column; gap: 14px;">
             <div class="eyebrow eyebrow--gold">Small</div>
-            <div style="font-size: 13px; color: rgba(245,240,230,0.65);">Upright · Slant · Marker</div>
-            <div class="display" style="font-size: 42px; color: var(--cream); margin-top: auto;">$45</div>
-          </div>
-          <div style="background: var(--forest); padding: 36px 28px; display: flex; flex-direction: column; gap: 14px;">
-            <div class="eyebrow eyebrow--gold">Medium</div>
-            <div style="font-size: 13px; color: rgba(245,240,230,0.65);">Double upright · Double slant</div>
-            <div class="display" style="font-size: 42px; color: var(--cream); margin-top: auto;">$60</div>
-          </div>
-          <div style="background: var(--forest); padding: 36px 28px; display: flex; flex-direction: column; gap: 14px;">
-            <div class="eyebrow eyebrow--gold">Large</div>
-            <div style="font-size: 13px; color: rgba(245,240,230,0.65);">Obelisk</div>
+            <div style="font-size: 13px; color: rgba(245,240,230,0.65);">Single upright · slant · marker</div>
             <div class="display" style="font-size: 42px; color: var(--cream); margin-top: auto;">$75</div>
           </div>
           <div style="background: var(--forest); padding: 36px 28px; display: flex; flex-direction: column; gap: 14px;">
-            <div class="eyebrow eyebrow--gold">Family plot</div>
-            <div style="font-size: 13px; color: rgba(245,240,230,0.65);">By visit — quoted on site</div>
-            <div class="display" style="font-size: 42px; color: var(--cream); margin-top: auto;">Quote</div>
+            <div class="eyebrow eyebrow--gold">Medium</div>
+            <div style="font-size: 13px; color: rgba(245,240,230,0.65);">Double upright · slant · marker</div>
+            <div class="display" style="font-size: 42px; color: var(--cream); margin-top: auto;">$110</div>
+          </div>
+          <div style="background: var(--forest); padding: 36px 28px; display: flex; flex-direction: column; gap: 14px;">
+            <div class="eyebrow eyebrow--gold">Large</div>
+            <div style="font-size: 13px; color: rgba(245,240,230,0.65);">Obelisk or monument</div>
+            <div class="display" style="font-size: 42px; color: var(--cream); margin-top: auto;">$150</div>
+          </div>
+          <div style="background: var(--forest); padding: 36px 28px; display: flex; flex-direction: column; gap: 14px;">
+            <div class="eyebrow eyebrow--gold">Multiple stones</div>
+            <div style="font-size: 13px; color: rgba(245,240,230,0.65);">3+ at the same site</div>
+            <div class="display" style="font-size: 36px; color: var(--cream); margin-top: auto; line-height: 1.1;">−$10<span style="display: block; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245,240,230,0.55); margin-top: 8px;">per stone</span></div>
           </div>
         </div>
 
@@ -321,14 +321,36 @@
     ReactDOM.createRoot(document.getElementById("nav-root")).render(<Nav current="home" />);
     ReactDOM.createRoot(document.getElementById("footer-root")).render(<Footer />);
 
-    // Hero B/A is a static stacked layout (no slider) — see #hero-ba in markup.
-
-    // Gallery teaser slider — picks a random pair from the pool each load
+    // ───────────────────────────────────────────────────────────
+    // FEATURED before/after pairs — shown on the home page only.
+    // Add a pair here ONLY if it's strong enough to be the first
+    // thing visitors see. Every pair (featured or not) still shows
+    // up on gallery.html — that's the full archive.
+    //
+    // To feature a new pair: drop the two images in images/ba/ and
+    // add an entry below. The hero (top of page) and the teaser
+    // slider further down both pick a random featured pair on load.
+    // ───────────────────────────────────────────────────────────
     const BA_PAIRS = [
-      { before: "images/ba/leedham-before.jpeg", after: "images/ba/leedham-after.jpeg" },
-      // Add more pairs here as they come in — they'll be randomly selected each visit.
+      { before: "images/ba/leedham-before.jpeg", after: "images/ba/leedham-after.jpeg", name: "Leedham" },
+      // Ryan lives on the gallery page only — not strong enough for the hero.
     ];
-    const teaserPair = BA_PAIRS[Math.floor(Math.random() * BA_PAIRS.length)];
+
+    // Pick once per page load — used by both the hero and the teaser.
+    // We avoid repeating the last shown pair so refreshes feel fresh
+    // (with only 2 pairs, plain Math.random() can stick on one side).
+    const lastIdx = Number(localStorage.getItem("hhc:lastBA") ?? -1);
+    let pickIdx;
+    if (BA_PAIRS.length <= 1) {
+      pickIdx = 0;
+    } else {
+      do { pickIdx = Math.floor(Math.random() * BA_PAIRS.length); }
+      while (pickIdx === lastIdx);
+    }
+    localStorage.setItem("hhc:lastBA", String(pickIdx));
+    const teaserPair = BA_PAIRS[pickIdx];
+    document.getElementById("hero-before-img").src = teaserPair.before;
+    document.getElementById("hero-after-img").src  = teaserPair.after;
     ReactDOM.createRoot(document.getElementById("gallery-teaser-ba")).render(
       <BASlider
         before={teaserPair.before}
