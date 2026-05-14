@@ -357,54 +357,7 @@
       );
     }
 
-    function ServiceTypeGate({ onChoose }) {
-      const tiles = [
-        {
-          id: "headstone",
-          title: "Headstone or monument",
-          sub: "Cleaning a single stone, double, obelisk, or multiple stones at the same site. Per-stone pricing.",
-          tag: "Continue booking",
-          accent: "var(--gold)",
-        },
-        {
-          id: "other",
-          title: "Other stonework",
-          sub: "Patios, walkways, walls, statues, fountains, pool decks, benches. Quoted on a visit.",
-          tag: "Request a quote",
-          accent: "var(--moss-light)",
-        },
-      ];
-      return (
-        <div>
-          <div className="eyebrow">First, the basics</div>
-          <div style={{ height: 12 }} />
-          <h2 className="display" style={{ fontSize: "clamp(34px, 4vw, 52px)", color: "var(--forest)", margin: 0 }}>
-            What are we caring for?
-          </h2>
-          <p className="body-text" style={{ marginTop: 18, maxWidth: 540 }}>
-            Headstones go through the booking form &mdash; flat per-stone pricing. Anything else gets a quick quote since pricing depends on size, condition, and access.
-          </p>
-          <div style={{ height: 40 }} />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-            {tiles.map(t => (
-              <button key={t.id} className="tile" onClick={() => onChoose(t.id)} style={{ minHeight: 240, alignItems: "flex-start", textAlign: "left" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 14, height: "100%", width: "100%" }}>
-                  <div className="display" style={{ fontSize: 28, color: "var(--forest)" }}>{t.title}</div>
-                  <p className="body-text" style={{ margin: 0, fontSize: 14, flex: 1 }}>{t.sub}</p>
-                  <div style={{ marginTop: 12, paddingTop: 14, borderTop: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: t.accent }}>{t.tag}</span>
-                    <span className="arrow" style={{ color: t.accent }}>&rarr;</span>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
     function Booking() {
-      const [kind, setKind] = useState(null); // null | "headstone" | "other"
       const [step, setStep] = useState(0);
       const [done, setDone] = useState(false);
       const [data, setData] = useState({ addons: [] });
@@ -437,52 +390,6 @@
 
       const reset = () => { setData({ addons: [] }); setStep(0); setDone(false); };
 
-      const handleKind = (k) => {
-        if (k === "other") {
-          window.location.href = "contact.html?topic=quote";
-          return;
-        }
-        setKind(k);
-      };
-
-      if (!kind) {
-        return (
-          <div className="page-enter">
-            <section style={{ padding: "100px 0 32px", borderBottom: "1px solid var(--rule)" }}>
-              <div className="page-wrap">
-                <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 48, alignItems: "end" }}>
-                  <div>
-                    <div className="eyebrow">Book a cleaning</div>
-                    <div style={{ height: 16 }} />
-                    <h1 className="display" style={{ fontSize: "clamp(40px, 5vw, 72px)", color: "var(--forest)", margin: 0 }}>
-                      Two minutes, <span className="display-italic" style={{ color: "var(--gold)" }}>and a stone is on the calendar.</span>
-                    </h1>
-                  </div>
-                  <div style={{ borderLeft: "1px solid var(--rule)", paddingLeft: 32 }}>
-                    <div className="eyebrow">Prefer to talk?</div>
-                    <div style={{ height: 10 }} />
-                    <a href="tel:6316048002" style={{ display: "block", fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "var(--forest)", textDecoration: "none", lineHeight: 1.1 }}>
-                      (631) 604-8002
-                    </a>
-                    <div style={{ marginTop: 8, fontSize: 13, color: "var(--stone)" }}>
-                      <a href="tel:6316048002" style={{ color: "var(--gold)", textDecoration: "none" }}>Call</a>
-                      <span style={{ color: "var(--rule)", margin: "0 8px" }}>·</span>
-                      <a href="sms:6316048002" style={{ color: "var(--gold)", textDecoration: "none" }}>Text</a>
-                      <span style={{ color: "var(--stone)", marginLeft: 8 }}>— Jason answers personally</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-            <section className="section">
-              <div className="page-wrap" style={{ maxWidth: 860 }}>
-                <ServiceTypeGate onChoose={handleKind} />
-              </div>
-            </section>
-          </div>
-        );
-      }
-
       if (done) {
         return (
           <div className="page-enter">
@@ -501,15 +408,15 @@
             <div className="page-wrap">
               <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 48, alignItems: "end" }}>
                 <div>
-                  <button onClick={() => { setKind(null); setStep(0); setData({ addons: [] }); }} style={{ background: "none", border: 0, padding: 0, color: "var(--gold)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", cursor: "pointer", fontFamily: "inherit" }}>
-                    ← Choose a different service
-                  </button>
-                  <div style={{ height: 14 }} />
-                  <div className="eyebrow">Headstone cleaning</div>
+                  <div className="eyebrow">Book a cleaning</div>
                   <div style={{ height: 16 }} />
                   <h1 className="display" style={{ fontSize: "clamp(40px, 5vw, 72px)", color: "var(--forest)", margin: 0 }}>
                     Five short steps. <span className="display-italic" style={{ color: "var(--gold)" }}>About two minutes.</span>
                   </h1>
+                  <div style={{ height: 18 }} />
+                  <div style={{ fontSize: 13, color: "var(--stone)" }}>
+                    Caring for a patio, walkway, statue, or other stonework? <a href="contact.html?topic=quote" style={{ color: "var(--gold)", textDecoration: "none", borderBottom: "1px solid var(--gold)" }}>Request a quote &rarr;</a>
+                  </div>
                 </div>
                 <div style={{ borderLeft: "1px solid var(--rule)", paddingLeft: 32 }}>
                   <div className="eyebrow">Prefer to talk?</div>
