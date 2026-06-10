@@ -65,6 +65,8 @@
       .print-page { padding: 0 !important; max-width: 100% !important; box-shadow: none !important; }
       tr { page-break-inside: avoid; break-inside: avoid; }
       img { max-width: 100%; }
+      /* Each stone photo block stays together */
+      .photo-block { page-break-inside: avoid; break-inside: avoid; }
       @page { margin: 0.5in; }
     }
     .print-only { display: none; }
@@ -196,6 +198,7 @@
       const today = new Date().toISOString().split("T")[0];
       const [client, setClient] = useState({ name: "", cemetery: "", date: today, notes: "" });
       const [stones, setStones] = useState([]);
+      const [customItems, setCustomItems] = useState([]);
       const [view, setView] = useState("build");
 
       // Sequential estimate counter — stored in localStorage, padded to 4 digits
@@ -241,7 +244,7 @@
         if (!hasContent) return;
         const t = setTimeout(() => {
           const now = new Date().toISOString();
-          const payload = { savedAt: now, client, stones };
+          const payload = { savedAt: now, client, stones, customItems };
           try {
             localStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
             setLastSaved({ at: now, photosOmitted: false });
@@ -257,7 +260,7 @@
           }
         }, 800);
         return () => clearTimeout(t);
-      }, [client, stones]);
+      }, [client, stones, customItems]);
 
       // Tick once a minute so the "saved X ago" label stays fresh
       useEffect(() => {
@@ -269,6 +272,7 @@
         if (!pendingDraft) return;
         setClient(pendingDraft.client);
         setStones(pendingDraft.stones || []);
+        setCustomItems(pendingDraft.customItems || []);
         setPendingDraft(null);
       }
       function discardDraft() {
@@ -281,6 +285,7 @@
         localStorage.removeItem(DRAFT_KEY);
         setClient({ name: "", cemetery: "", date: today, notes: "" });
         setStones([]);
+        setCustomItems([]);
         setLastSaved(null);
         setPendingDraft(null);
         setView("build");
@@ -374,9 +379,22 @@
         const base = PRICING.stones.find(s => s.id === st.type);
         return base?.maintenance ?? 0;
       }
+
+      // ── Custom line items ──────────────────────────────────────
+      function addCustomItem() {
+        setCustomItems(c => [...c, { id: Date.now() + Math.random(), description: "", price: "" }]);
+      }
+      function updateCustomItem(id, field, value) {
+        setCustomItems(c => c.map(item => item.id === id ? { ...item, [field]: value } : item));
+      }
+      function removeCustomItem(id) {
+        setCustomItems(c => c.filter(item => item.id !== id));
+      }
+
       const stonesSubtotal = stones.reduce((sum, st) => sum + stoneTotal(st), 0);
       const maintenanceSubtotal = stones.reduce((sum, st) => sum + stoneMaintenancePrice(st), 0);
-      const oneTimeTotal = stonesSubtotal;
+      const customSubtotal = customItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+      const oneTimeTotal = stonesSubtotal + customSubtotal;
       const annualTotal = maintenanceSubtotal;
 
       function handlePrint() {
@@ -585,6 +603,48 @@
                     </button>
                   ))}
                 </div>
+
+                <hr className="divider" />
+
+                {/* Custom line items */}
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14 }}>
+                  <h3 className="section-head" style={{ margin: 0 }}>Custom Items</h3>
+                  <span style={{ fontSize: 11, color: "var(--stone)" }}>Flowers, materials, anything one-off</span>
+                </div>
+
+                {customItems.length === 0 && (
+                  <p className="body-text" style={{ fontStyle: "italic", marginBottom: 14 }}>No custom items. Use this for flowers, special materials, or any one-off charge.</p>
+                )}
+
+                {customItems.map(item => (
+                  <div key={item.id} style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+                    <input
+                      className="field-input"
+                      value={item.description}
+                      onChange={e => updateCustomItem(item.id, "description", e.target.value)}
+                      placeholder="Description (e.g. Floral arrangement, grave blanket)"
+                      style={{ flex: 1 }}
+                    />
+                    <div style={{ position: "relative", width: 110, flexShrink: 0 }}>
+                      <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--stone)", fontSize: 13, pointerEvents: "none" }}>$</span>
+                      <input
+                        className="field-input"
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={item.price}
+                        onChange={e => updateCustomItem(item.id, "price", e.target.value)}
+                        placeholder="0"
+                        style={{ paddingLeft: 22, width: "100%" }}
+                      />
+                    </div>
+                    <button className="remove-btn" onClick={() => removeCustomItem(item.id)} title="Remove item">×</button>
+                  </div>
+                ))}
+
+                <button className="add-stone-btn" style={{ marginTop: customItems.length > 0 ? 4 : 0 }} onClick={addCustomItem}>
+                  + Add Custom Item
+                </button>
               </div>
 
               {/* Summary sidebar */}
@@ -634,6 +694,13 @@
                       </div>
                     );
                   })}
+
+                  {customItems.filter(item => item.description || item.price).map(item => (
+                    <div key={item.id} style={{ display: "flex", justifyContent: "space-between", paddingBottom: 8, marginBottom: 8, borderBottom: "1px solid rgba(245,240,230,0.12)" }}>
+                      <span style={{ fontSize: 12, maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description || "Custom item"}</span>
+                      <span style={{ fontSize: 12, color: "var(--gold)", whiteSpace: "nowrap" }}>${parseFloat(item.price) || 0}</span>
+                    </div>
+                  ))}
 
                   <div style={{ borderTop: "1px solid rgba(245,240,230,0.25)", paddingTop: 14, marginTop: 6 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: annualTotal > 0 ? 10 : 0 }}>
@@ -763,23 +830,26 @@
                           </tr>
                         );
                       }
-                      if (st.photos.length > 0) {
-                        rows.push(
-                          <tr key={`p-${st.id}`} style={{ borderBottom: "1px solid var(--rule)", pageBreakInside: "avoid", breakInside: "avoid" }}>
-                            <td colSpan={2} style={{ padding: "10px 0 14px 16px" }}>
-                              <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(st.photos.length, 4)}, 1fr)`, gap: 6, maxWidth: 460 }}>
-                                {st.photos.map(p => (
-                                  <div key={p.id} style={{ position: "relative", paddingBottom: "100%", background: "var(--cream)" }}>
-                                    <img src={p.dataUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", border: "1px solid var(--rule)" }} />
-                                  </div>
-                                ))}
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      }
                       return rows;
                     })}
+
+                    {customItems.filter(item => item.description || item.price).length > 0 && (
+                      <>
+                        <tr>
+                          <td colSpan={2} style={{ padding: "16px 0 6px", borderTop: "1px solid var(--forest)" }}>
+                            <div className="eyebrow">Additional Items</div>
+                          </td>
+                        </tr>
+                        {customItems.filter(item => item.description || item.price).map(item => (
+                          <tr key={item.id} style={{ borderBottom: "1px solid var(--rule)" }}>
+                            <td style={{ padding: "8px 0" }}>
+                              <div className="display" style={{ fontSize: 17, color: "var(--forest)" }}>{item.description || "Custom item"}</div>
+                            </td>
+                            <td style={{ padding: "8px 0", textAlign: "right", fontFamily: "'Cormorant Garamond', serif", fontSize: 18, color: "var(--forest)" }}>${parseFloat(item.price) || 0}</td>
+                          </tr>
+                        ))}
+                      </>
+                    )}
 
                     {multiDiscount && (
                       <tr style={{ borderBottom: "1px solid var(--rule)" }}>
@@ -833,6 +903,43 @@
                 <div style={{ marginTop: 28, textAlign: "center", fontSize: 10, color: "var(--stone)", letterSpacing: "0.08em" }}>
                   Hampton Headstone Care · hamptonheadstonecare.com · (631) 604-8002
                 </div>
+
+                {/* Photo reference section — outside the table so page breaks work correctly */}
+                {stones.some(st => st.photos.length > 0) && (
+                  <div style={{ marginTop: 48 }}>
+                    <div style={{ paddingBottom: 12, marginBottom: 24, borderBottom: "2px solid var(--forest)", display: "flex", alignItems: "baseline", gap: 12 }}>
+                      <div className="display" style={{ fontSize: 22, color: "var(--forest)" }}>Photo Reference</div>
+                      <div style={{ fontSize: 11, color: "var(--stone)", letterSpacing: "0.06em" }}>Attached to this estimate for stone identification</div>
+                    </div>
+                    {stones.filter(st => st.photos.length > 0).map((st, idx) => {
+                      const typeDef = PRICING.stones.find(s => s.id === st.type);
+                      const label = st.name.trim() || `${typeDef?.label} Stone`;
+                      const cols = Math.min(st.photos.length, 3);
+                      return (
+                        <div
+                          key={st.id}
+                          style={{ marginBottom: 32, pageBreakInside: "avoid", breakInside: "avoid" }}
+                        >
+                          <div style={{ marginBottom: 10 }}>
+                            <div style={{ fontSize: 10, color: "var(--stone)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Stone #{idx + 1} · {typeDef?.label}</div>
+                            <div className="display" style={{ fontSize: 18, color: "var(--forest)" }}>{label}</div>
+                          </div>
+                          <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 8 }}>
+                            {st.photos.map(p => (
+                              <div key={p.id} style={{ position: "relative", paddingBottom: "75%", background: "var(--cream)", border: "1px solid var(--rule)" }}>
+                                <img
+                                  src={p.dataUrl}
+                                  alt={label}
+                                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           )}
