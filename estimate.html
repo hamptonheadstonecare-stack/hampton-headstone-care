@@ -20,7 +20,7 @@
       --moss: #4A6741;
       --cream: #F5F0E6;
       --gold: #B8962E;
-      --stone: #8A8070;
+      --stone: #6B5F4F;
       --rule: #D4CFC4;
     }
     * { box-sizing: border-box; }
@@ -63,6 +63,8 @@
       .no-print { display: none !important; }
       .print-only { display: block !important; }
       .print-page { padding: 0 !important; max-width: 100% !important; box-shadow: none !important; }
+      tr { page-break-inside: avoid; break-inside: avoid; }
+      img { max-width: 100%; }
       @page { margin: 0.5in; }
     }
     .print-only { display: none; }
@@ -122,6 +124,20 @@
     };
     const MULTI_DISCOUNT = 10;
     const CORRECT_PASSWORD = "willywonka";
+    const DRAFT_KEY = "hhc_estimate_draft";
+
+    // Format relative time for "saved X ago"
+    function timeAgo(iso) {
+      if (!iso) return "";
+      const secs = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+      if (secs < 5) return "just now";
+      if (secs < 60) return `${secs}s ago`;
+      const mins = Math.floor(secs / 60);
+      if (mins < 60) return `${mins}m ago`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return `${hrs}h ago`;
+      return new Date(iso).toLocaleDateString();
+    }
 
     // ── Login Screen ───────────────────────────────────────────
     function Login({ onSuccess }) {
@@ -203,11 +219,81 @@
         return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
       })();
 
+      // ── Auto-save / draft restore ──────────────────────────────
+      // On mount, check for a saved draft with actual content
+      const [pendingDraft, setPendingDraft] = useState(() => {
+        try {
+          const raw = localStorage.getItem(DRAFT_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (parsed.client?.name || parsed.client?.cemetery || parsed.client?.notes || (parsed.stones?.length > 0)) {
+            return parsed;
+          }
+          return null;
+        } catch { return null; }
+      });
+      const [lastSaved, setLastSaved] = useState(null);
+      const [savedTick, setSavedTick] = useState(0); // forces re-render so "X seconds ago" updates
+
+      // Debounced auto-save whenever client or stones change
+      useEffect(() => {
+        const hasContent = client.name || client.cemetery || client.notes || stones.length > 0;
+        if (!hasContent) return;
+        const t = setTimeout(() => {
+          const now = new Date().toISOString();
+          const payload = { savedAt: now, client, stones };
+          try {
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
+            setLastSaved({ at: now, photosOmitted: false });
+          } catch (e) {
+            // Quota exceeded — most likely too many/large photos. Save form data without photos.
+            try {
+              const stonesNoPhotos = stones.map(st => ({ ...st, photos: [] }));
+              localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: now, client, stones: stonesNoPhotos, photosOmitted: true }));
+              setLastSaved({ at: now, photosOmitted: true });
+            } catch {
+              setLastSaved({ at: now, failed: true });
+            }
+          }
+        }, 800);
+        return () => clearTimeout(t);
+      }, [client, stones]);
+
+      // Tick once a minute so the "saved X ago" label stays fresh
+      useEffect(() => {
+        const i = setInterval(() => setSavedTick(t => t + 1), 30000);
+        return () => clearInterval(i);
+      }, []);
+
+      function restoreDraft() {
+        if (!pendingDraft) return;
+        setClient(pendingDraft.client);
+        setStones(pendingDraft.stones || []);
+        setPendingDraft(null);
+      }
+      function discardDraft() {
+        localStorage.removeItem(DRAFT_KEY);
+        setPendingDraft(null);
+        setLastSaved(null);
+      }
+      function clearAll() {
+        if (!confirm("Start a new estimate? Current work will be cleared.")) return;
+        localStorage.removeItem(DRAFT_KEY);
+        setClient({ name: "", cemetery: "", date: today, notes: "" });
+        setStones([]);
+        setLastSaved(null);
+        setPendingDraft(null);
+        setView("build");
+      }
+
       function addStone(typeId) {
-        setStones(s => [...s, { id: Date.now() + Math.random(), type: typeId, surcharges: [], addons: [], maintenance: false }]);
+        setStones(s => [...s, { id: Date.now() + Math.random(), type: typeId, name: "", surcharges: [], addons: [], maintenance: false, photos: [] }]);
       }
       function removeStone(id) {
         setStones(s => s.filter(st => st.id !== id));
+      }
+      function updateStoneName(stoneId, name) {
+        setStones(s => s.map(st => st.id === stoneId ? { ...st, name } : st));
       }
       function toggleStoneSurcharge(stoneId, surchargeId) {
         setStones(s => s.map(st => {
@@ -225,6 +311,48 @@
       }
       function toggleStoneMaintenance(stoneId) {
         setStones(s => s.map(st => st.id === stoneId ? { ...st, maintenance: !st.maintenance } : st));
+      }
+
+      // ── Photo handling ─────────────────────────────────────────
+      // Compress images on upload — resize to max 1400px wide, JPEG quality 0.75
+      // Use createImageBitmap with imageOrientation:'from-image' to handle iPhone EXIF rotation correctly
+      async function compressImage(file) {
+        try {
+          const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+          const maxWidth = 1400;
+          const ratio = Math.min(1, maxWidth / bitmap.width);
+          const w = Math.round(bitmap.width * ratio);
+          const h = Math.round(bitmap.height * ratio);
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(bitmap, 0, 0, w, h);
+          bitmap.close && bitmap.close();
+          return canvas.toDataURL("image/jpeg", 0.75);
+        } catch (e) {
+          // Fallback for older browsers without createImageBitmap orientation support
+          return await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        }
+      }
+
+      async function addStonePhotos(stoneId, fileList) {
+        const files = Array.from(fileList).filter(f => f.type.startsWith("image/"));
+        if (files.length === 0) return;
+        const compressed = await Promise.all(files.map(async f => ({
+          id: Date.now() + Math.random(),
+          dataUrl: await compressImage(f),
+        })));
+        setStones(s => s.map(st => st.id === stoneId ? { ...st, photos: [...st.photos, ...compressed] } : st));
+      }
+
+      function removeStonePhoto(stoneId, photoId) {
+        setStones(s => s.map(st => st.id === stoneId ? { ...st, photos: st.photos.filter(p => p.id !== photoId) } : st));
       }
 
       const multiDiscount = stones.length >= 3;
@@ -267,12 +395,23 @@
         <div style={{ minHeight: "100vh", background: "var(--cream)" }}>
           {/* Header */}
           <div className="no-print" style={{ background: "var(--forest)", padding: "14px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
               <HHCMark color="#F5F0E6" height={26} />
               <span className="eyebrow" style={{ color: "rgba(245,240,230,0.55)" }}>Estimate Builder</span>
               <span style={{ fontSize: 10, color: "rgba(245,240,230,0.4)", letterSpacing: "0.08em", borderLeft: "1px solid rgba(245,240,230,0.2)", paddingLeft: 12 }}>Next: {estimateNumber}</span>
+              {lastSaved && (
+                <span style={{ fontSize: 10, color: lastSaved.failed ? "#e8a48a" : lastSaved.photosOmitted ? "#e8c98a" : "rgba(245,240,230,0.55)", letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: 5 }} title={lastSaved.failed ? "Auto-save failed — storage may be full" : lastSaved.photosOmitted ? "Form data saved, but photos couldn't fit in storage. Photos won't be restored if you reload." : "Auto-saved to this browser"}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: lastSaved.failed ? "#e8a48a" : lastSaved.photosOmitted ? "#e8c98a" : "#7eb87e", display: "inline-block" }}></span>
+                  {lastSaved.failed ? "Save failed" : lastSaved.photosOmitted ? `Saved ${timeAgo(lastSaved.at)} (photos not saved)` : `Saved ${timeAgo(lastSaved.at)}`}
+                  <span style={{ display: "none" }}>{savedTick}</span>
+                </span>
+              )}
             </div>
             <div style={{ display: "flex", gap: 0, alignItems: "center" }}>
+              <button
+                onClick={clearAll}
+                style={{ background: "none", border: "1px solid rgba(245,240,230,0.25)", color: "rgba(245,240,230,0.75)", padding: "6px 12px", marginRight: 16, cursor: "pointer", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase" }}
+              >+ New</button>
               <button
                 className="tab"
                 style={{ color: view === "build" ? "var(--cream)" : "rgba(245,240,230,0.5)", borderBottomColor: view === "build" ? "var(--gold)" : "transparent" }}
@@ -292,7 +431,29 @@
 
           {/* ── BUILD VIEW ─────────────────────────────────── */}
           {view === "build" && (
-            <div className="layout-grid" style={{ maxWidth: 980, margin: "0 auto", padding: "32px 20px", display: "grid", gridTemplateColumns: "1fr 320px", gap: 28, alignItems: "start" }}>
+            <div>
+              {pendingDraft && (
+                <div className="no-print" style={{ background: "white", borderBottom: "1px solid var(--rule)", padding: "14px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--gold)", display: "inline-block" }}></span>
+                    <div>
+                      <div style={{ fontSize: 13, color: "var(--forest)", fontWeight: 500 }}>
+                        Draft from {timeAgo(pendingDraft.savedAt)} found
+                      </div>
+                      <div style={{ fontSize: 11, color: "var(--stone)", marginTop: 2 }}>
+                        {pendingDraft.client?.name ? `${pendingDraft.client.name} · ` : ""}
+                        {pendingDraft.stones?.length || 0} stone{pendingDraft.stones?.length === 1 ? "" : "s"}
+                        {pendingDraft.photosOmitted && " · photos were not saved"}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button className="secondary-btn" onClick={discardDraft} style={{ fontSize: 10 }}>Discard</button>
+                    <button className="primary-btn" onClick={restoreDraft} style={{ padding: "10px 20px", fontSize: 10 }}>Restore Draft</button>
+                  </div>
+                </div>
+              )}
+              <div className="layout-grid" style={{ maxWidth: 980, margin: "0 auto", padding: "32px 20px", display: "grid", gridTemplateColumns: "1fr 320px", gap: 28, alignItems: "start" }}>
               <div>
                 <h3 className="section-head">Client Information</h3>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
@@ -318,7 +479,7 @@
 
                 <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14 }}>
                   <h3 className="section-head" style={{ margin: 0 }}>Stones</h3>
-                  {multiDiscount && <span style={{ fontSize: 11, color: "var(--gold)", letterSpacing: "0.06em" }}>−$10/stone multi-stone discount applied</span>}
+                  {multiDiscount && <span style={{ fontSize: 11, color: "var(--forest)", letterSpacing: "0.06em", fontWeight: 500 }}>−$10/stone multi-stone discount applied</span>}
                 </div>
 
                 {stones.length === 0 && (
@@ -329,14 +490,22 @@
                   const typeDef = PRICING.stones.find(s => s.id === st.type);
                   return (
                     <div key={st.id} className="stone-card" style={{ padding: 16 }}>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
-                        <div>
-                          <span className="eyebrow">Stone {idx + 1}</span>
-                          <span className="display" style={{ fontSize: 19, marginLeft: 10, color: "var(--forest)" }}>{typeDef?.label}</span>
-                          <div style={{ fontSize: 11, color: "var(--stone)", marginTop: 2, letterSpacing: "0.04em" }}>{typeDef?.sub}</div>
+                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12, gap: 12 }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                            <span className="eyebrow" style={{ background: "var(--cream)", padding: "2px 8px" }}>#{idx + 1}</span>
+                            <span style={{ fontSize: 11, color: "var(--stone)", letterSpacing: "0.04em" }}>{typeDef?.label} · {typeDef?.sub}</span>
+                          </div>
+                          <input
+                            className="field-input"
+                            value={st.name}
+                            onChange={e => updateStoneName(st.id, e.target.value)}
+                            placeholder="Stone name or identifier (e.g. Robert F. Daniels, Father's stone)"
+                            style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 18, color: "var(--forest)", padding: "6px 10px" }}
+                          />
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                          <span className="display" style={{ fontSize: 24, color: "var(--gold)" }}>${stoneTotal(st)}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12, paddingTop: 24 }}>
+                          <span className="display" style={{ fontSize: 24, color: "var(--forest)" }}>${stoneTotal(st)}</span>
                           <button className="remove-btn" onClick={() => removeStone(st.id)} title="Remove stone">×</button>
                         </div>
                       </div>
@@ -370,6 +539,41 @@
                         </button>
                         {st.maintenance && <span style={{ fontSize: 10, color: "var(--stone)", marginLeft: 8, fontStyle: "italic" }}>Two visits/yr · spring & fall</span>}
                       </div>
+
+                      <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px dashed var(--rule)" }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                          <span className="eyebrow">Photos {st.photos.length > 0 && `(${st.photos.length})`}</span>
+                          <label className="toggle-btn" style={{ cursor: "pointer" }}>
+                            + Add Photos
+                            <input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              style={{ display: "none" }}
+                              onChange={async (e) => {
+                                await addStonePhotos(st.id, e.target.files);
+                                e.target.value = ""; // reset so same file can be re-selected
+                              }}
+                            />
+                          </label>
+                        </div>
+                        {st.photos.length === 0 ? (
+                          <p style={{ fontSize: 11, color: "var(--stone)", fontStyle: "italic", margin: 0 }}>No photos attached. Optional — useful for identifying which stone is which.</p>
+                        ) : (
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))", gap: 6 }}>
+                            {st.photos.map(p => (
+                              <div key={p.id} style={{ position: "relative", paddingBottom: "100%", background: "var(--cream)", border: "1px solid var(--rule)" }}>
+                                <img src={p.dataUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                                <button
+                                  onClick={() => removeStonePhoto(st.id, p.id)}
+                                  title="Remove photo"
+                                  style={{ position: "absolute", top: 2, right: 2, width: 20, height: 20, background: "rgba(44,74,46,0.85)", color: "white", border: "none", borderRadius: "50%", cursor: "pointer", fontSize: 14, lineHeight: 1, padding: 0 }}
+                                >×</button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -395,11 +599,15 @@
 
                   {stones.map((st, idx) => {
                     const typeDef = PRICING.stones.find(s => s.id === st.type);
+                    const label = st.name.trim() || `Stone ${idx + 1}`;
                     return (
                       <div key={st.id} style={{ paddingBottom: 10, marginBottom: 10, borderBottom: "1px solid rgba(245,240,230,0.12)" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between" }}>
-                          <span style={{ fontSize: 12 }}>Stone {idx + 1} — {typeDef?.label}</span>
-                          <span style={{ fontSize: 12, color: "var(--gold)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</div>
+                            <div style={{ fontSize: 10, color: "rgba(245,240,230,0.5)", letterSpacing: "0.04em" }}>#{idx + 1} · {typeDef?.label}</div>
+                          </div>
+                          <span style={{ fontSize: 12, color: "var(--gold)", whiteSpace: "nowrap" }}>
                             ${(typeDef?.price ?? 0) - (multiDiscount ? MULTI_DISCOUNT : 0)}
                           </span>
                         </div>
@@ -446,6 +654,7 @@
                 </button>
               </div>
             </div>
+            </div>
           )}
 
           {/* ── PREVIEW VIEW ─────────────────────────────── */}
@@ -482,12 +691,12 @@
                         onBlur={(e) => { saveEstimateNum(e.target.value); setEditingNum(false); }}
                         onKeyDown={(e) => { if (e.key === "Enter") { saveEstimateNum(e.target.value); setEditingNum(false); } }}
                         className="no-print"
-                        style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, color: "var(--gold)", border: "1px solid var(--rule)", padding: "2px 6px", textAlign: "right", width: 130, background: "white" }}
+                        style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, color: "var(--forest)", border: "1px solid var(--rule)", padding: "2px 6px", textAlign: "right", width: 130, background: "white" }}
                       />
                     ) : (
                       <div
                         className="display"
-                        style={{ fontSize: 20, color: "var(--gold)", cursor: "pointer" }}
+                        style={{ fontSize: 20, color: "var(--forest)", cursor: "pointer" }}
                         onClick={() => setEditingNum(true)}
                         title="Click to edit estimate number"
                       >{estimateNumber}</div>
@@ -521,7 +730,8 @@
                       rows.push(
                         <tr key={`stone-${st.id}`} style={{ borderBottom: "1px solid var(--rule)" }}>
                           <td style={{ padding: "12px 0 4px" }}>
-                            <div className="display" style={{ fontSize: 18, color: "var(--forest)" }}>Stone {idx + 1} — {typeDef?.label}</div>
+                            <div style={{ fontSize: 10, color: "var(--stone)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Stone #{idx + 1} · {typeDef?.label}</div>
+                            <div className="display" style={{ fontSize: 18, color: "var(--forest)", marginTop: 2 }}>{st.name.trim() || `${typeDef?.label} Stone`}</div>
                             <div style={{ fontSize: 11, color: "var(--stone)", marginTop: 1 }}>{typeDef?.sub}</div>
                           </td>
                           <td style={{ padding: "12px 0 4px", textAlign: "right", fontFamily: "'Cormorant Garamond', serif", fontSize: 20, color: "var(--forest)" }}>${basePrice}</td>
@@ -553,6 +763,21 @@
                           </tr>
                         );
                       }
+                      if (st.photos.length > 0) {
+                        rows.push(
+                          <tr key={`p-${st.id}`} style={{ borderBottom: "1px solid var(--rule)", pageBreakInside: "avoid", breakInside: "avoid" }}>
+                            <td colSpan={2} style={{ padding: "10px 0 14px 16px" }}>
+                              <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(st.photos.length, 4)}, 1fr)`, gap: 6, maxWidth: 460 }}>
+                                {st.photos.map(p => (
+                                  <div key={p.id} style={{ position: "relative", paddingBottom: "100%", background: "var(--cream)" }}>
+                                    <img src={p.dataUrl} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", border: "1px solid var(--rule)" }} />
+                                  </div>
+                                ))}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      }
                       return rows;
                     })}
 
@@ -569,7 +794,7 @@
                 <div style={{ paddingTop: 16, borderTop: "2px solid var(--forest)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                     <span className="eyebrow">One-time total</span>
-                    <span className="display" style={{ fontSize: 46, color: "var(--gold)", lineHeight: 1 }}>${oneTimeTotal}</span>
+                    <span className="display" style={{ fontSize: 46, color: "var(--forest)", lineHeight: 1 }}>${oneTimeTotal}</span>
                   </div>
                   {annualTotal > 0 && (
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--rule)" }}>
@@ -577,7 +802,7 @@
                         <span className="eyebrow">Annual maintenance</span>
                         <div style={{ fontSize: 11, color: "var(--stone)", marginTop: 3, maxWidth: 360 }}>Recurring yearly. Two visits per year — spring and fall. Includes cleaning, photos, and priority scheduling.</div>
                       </div>
-                      <span className="display" style={{ fontSize: 30, color: "var(--gold)", lineHeight: 1, whiteSpace: "nowrap" }}>${annualTotal}<span style={{ fontSize: 14 }}>/yr</span></span>
+                      <span className="display" style={{ fontSize: 30, color: "var(--forest)", lineHeight: 1, whiteSpace: "nowrap" }}>${annualTotal}<span style={{ fontSize: 14 }}>/yr</span></span>
                     </div>
                   )}
                 </div>
