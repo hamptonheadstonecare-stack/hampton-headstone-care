@@ -430,12 +430,17 @@ const FTR_H = 26;   // footer height
 
 // ── State ─────────────────────────────────────────────────────────────
 const S = {
-  before:     { img: null, scale: 1, x: 0, y: 0 },
-  after:      { img: null, scale: 1, x: 0, y: 0 },
+  before:     { img: null, fitScale: 1, zoom: 1, x: 0, y: 0 },
+  after:      { img: null, fitScale: 1, zoom: 1, x: 0, y: 0 },
   active:     null,
   footerOn:   true,
   variant:    'standard',
 };
+
+// Actual pixel scale = fitScale * zoom
+function drawScale(which) {
+  return S[which].fitScale * S[which].zoom;
+}
 
 // ── Canvas setup ──────────────────────────────────────────────────────
 const canvas = document.getElementById('preview-canvas');
@@ -526,8 +531,9 @@ function drawSlot(which, z) {
   ctx.clip();
 
   if (s.img) {
-    const sw = s.img.width  * s.scale;
-    const sh = s.img.height * s.scale;
+    const sc = drawScale(which);
+    const sw = s.img.width  * sc;
+    const sh = s.img.height * sc;
     const dx = z.x + z.w / 2 - sw / 2 + s.x;
     const dy = z.y + z.h / 2 - sh / 2 + s.y;
     ctx.drawImage(s.img, dx, dy, sw, sh);
@@ -564,15 +570,16 @@ function loadPhoto(which, input) {
     const img = new Image();
     img.onload = () => {
       S[which].img = img;
-      // Auto-fit
+      // Auto-fit: store the fit scale, zoom starts at 1.0
       const z = zones()[which];
       const fitScale = Math.max(z.w / img.width, z.h / img.height);
-      S[which].scale = fitScale;
+      S[which].fitScale = fitScale;
+      S[which].zoom = 1;
       S[which].x = 0;
       S[which].y = 0;
 
-      // Sync sliders
-      setSliders(which, fitScale, 0, 0);
+      // Slider always starts at 100 (= fit)
+      setSliders(which, 0, 0);
 
       document.getElementById(`thumb-${which}`).src = canvas2.toDataURL('image/jpeg', 0.7);
       document.getElementById(`crop-${which}`).classList.add('visible');
@@ -591,9 +598,10 @@ function loadPhoto(which, input) {
         S[which].img = img;
         const z = zones()[which];
         const fitScale = Math.max(z.w / img.width, z.h / img.height);
-        S[which].scale = fitScale;
+        S[which].fitScale = fitScale;
+        S[which].zoom = 1;
         S[which].x = 0; S[which].y = 0;
-        setSliders(which, fitScale, 0, 0);
+        setSliders(which, 0, 0);
         document.getElementById(`thumb-${which}`).src = e.target.result;
         document.getElementById(`crop-${which}`).classList.add('visible');
         document.getElementById(`status-${which}`).textContent = 'Loaded';
@@ -606,21 +614,20 @@ function loadPhoto(which, input) {
   });
 }
 
-function setSliders(which, scale, x, y) {
-  const sv = Math.round(scale * 100);
-  document.getElementById(`scale-${which}`).value = Math.min(400, Math.max(30, sv));
+function setSliders(which, x, y) {
+  document.getElementById(`scale-${which}`).value = Math.round(S[which].zoom * 100);
   document.getElementById(`x-${which}`).value = Math.round(x);
   document.getElementById(`y-${which}`).value = Math.round(y);
-  document.getElementById(`rval-scale-${which}`).textContent = sv + '%';
+  document.getElementById(`rval-scale-${which}`).textContent = Math.round(S[which].zoom * 100) + '%';
   document.getElementById(`rval-x-${which}`).textContent = Math.round(x);
   document.getElementById(`rval-y-${which}`).textContent = Math.round(y);
 }
 
 function syncSlider(which) {
-  S[which].scale = parseFloat(document.getElementById(`scale-${which}`).value) / 100;
-  S[which].x     = parseFloat(document.getElementById(`x-${which}`).value);
-  S[which].y     = parseFloat(document.getElementById(`y-${which}`).value);
-  document.getElementById(`rval-scale-${which}`).textContent = Math.round(S[which].scale * 100) + '%';
+  S[which].zoom = parseFloat(document.getElementById(`scale-${which}`).value) / 100;
+  S[which].x    = parseFloat(document.getElementById(`x-${which}`).value);
+  S[which].y    = parseFloat(document.getElementById(`y-${which}`).value);
+  document.getElementById(`rval-scale-${which}`).textContent = Math.round(S[which].zoom * 100) + '%';
   document.getElementById(`rval-x-${which}`).textContent = Math.round(S[which].x);
   document.getElementById(`rval-y-${which}`).textContent = Math.round(S[which].y);
   render();
@@ -667,7 +674,7 @@ canvas.addEventListener('mousemove', e => {
   const { cx, cy } = canvasXY(e);
   S[S.active].x = drag.ox + (cx - drag.sx);
   S[S.active].y = drag.oy + (cy - drag.sy);
-  setSliders(S.active, S[S.active].scale, S[S.active].x, S[S.active].y);
+  setSliders(S.active, S[S.active].x, S[S.active].y);
   render();
 });
 
@@ -677,8 +684,8 @@ canvas.addEventListener('mouseleave',() => { drag.on = false; canvas.style.curso
 canvas.addEventListener('wheel', e => {
   if (!S.active) return;
   e.preventDefault();
-  S[S.active].scale = Math.max(0.3, Math.min(4, S[S.active].scale + (e.deltaY < 0 ? 0.06 : -0.06)));
-  setSliders(S.active, S[S.active].scale, S[S.active].x, S[S.active].y);
+  S[S.active].zoom = Math.max(0.3, Math.min(3, S[S.active].zoom + (e.deltaY < 0 ? 0.06 : -0.06)));
+  setSliders(S.active, S[S.active].x, S[S.active].y);
   render();
 }, { passive: false });
 
@@ -762,8 +769,9 @@ function exportImage() {
     ectx.rect(zz.x, zz.y, zz.w, zz.h);
     ectx.clip();
     if (s.img) {
-      const sw = s.img.width  * s.scale;
-      const sh = s.img.height * s.scale;
+      const sc = s.fitScale * s.zoom;
+      const sw = s.img.width  * sc;
+      const sh = s.img.height * sc;
       const dx = zz.x + zz.w / 2 - sw / 2 + s.x;
       const dy = zz.y + zz.h / 2 - sh / 2 + s.y;
       ectx.drawImage(s.img, dx, dy, sw, sh);
