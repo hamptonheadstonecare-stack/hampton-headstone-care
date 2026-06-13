@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photo Editor — Hampton Headstone Care</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --forest: #2C4A2E;
+      --moss: #4A6741;
+      --cream: #F5F0E6;
+      --gold: #B8962E;
+      --stone: #6B5F4F;
+      --rule: #D4CFC4;
+      --canvas-bg: #1e2b1a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--cream); font-family: 'Jost', sans-serif; color: var(--forest); }
+    .display { font-family: 'Cormorant Garamond', serif; }
+    .eyebrow { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--stone); }
+    input, textarea, select, button { font-family: 'Jost', sans-serif; }
+    input:focus, textarea:focus, select:focus { outline: none; }
+
+    /* Login */
+    .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--cream); }
+    .login-card { max-width: 380px; width: 100%; background: white; padding: 48px 40px; border: 1px solid var(--rule); }
+    .field-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--stone); display: block; margin-bottom: 5px; }
+    .field-input { width: 100%; border: 1px solid var(--rule); background: white; padding: 10px 12px; font-size: 13px; color: var(--forest); transition: border-color 0.15s; }
+    .field-input:focus { border-color: var(--forest); }
+    .primary-btn { cursor: pointer; background: var(--forest); color: var(--cream); border: none; padding: 12px 28px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; transition: background 0.15s; }
+    .primary-btn:hover { background: var(--moss); }
+    .primary-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .secondary-btn { cursor: pointer; background: white; border: 1px solid var(--rule); padding: 10px 18px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone); transition: all 0.15s; }
+    .secondary-btn:hover { border-color: var(--forest); color: var(--forest); }
+    .toggle-btn { cursor: pointer; border: 1px solid var(--rule); background: white; padding: 6px 12px; font-size: 11px; letter-spacing: 0.06em; color: var(--stone); transition: all 0.15s; }
+    .toggle-btn.active { background: var(--forest); border-color: var(--forest); color: var(--cream); }
+    .toggle-btn:hover:not(.active) { border-color: var(--forest); color: var(--forest); }
+    .divider { border: none; border-top: 1px solid var(--rule); margin: 20px 0; }
+    input[type="file"] { display: none; }
+
+    /* App shell */
+    #app { display: none; min-height: 100vh; }
+
+    /* Header */
+    .app-header {
+      background: var(--forest);
+      color: var(--cream);
+      padding: 0 28px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(212,207,196,0.12);
+    }
+    .app-header .eyebrow { color: rgba(245,240,230,0.55); }
+
+    /* Workspace */
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      min-height: calc(100vh - 52px);
+    }
+
+    /* Preview */
+    .preview-pane {
+      background: #161f13;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      gap: 14px;
+    }
+    .canvas-wrap {
+      position: relative;
+      box-shadow: 0 6px 32px rgba(0,0,0,0.55);
+    }
+    #preview-canvas {
+      display: block;
+      max-width: 100%;
+      max-height: calc(100vh - 160px);
+      cursor: crosshair;
+    }
+    .canvas-hint {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(245,240,230,0.3);
+    }
+    .active-hint {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(184,150,46,0.75);
+      min-height: 14px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: white;
+      border-left: 1px solid var(--rule);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-section {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .sidebar-section:last-child { border-bottom: none; }
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--stone);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .section-label span { color: var(--gold); font-size: 10px; }
+
+    /* Photo slot */
+    .photo-slot {
+      border: 1px solid var(--rule);
+      padding: 14px;
+      margin-bottom: 10px;
+      transition: border-color 0.15s;
+      background: white;
+    }
+    .photo-slot.is-active { border-color: var(--forest); }
+    .slot-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .slot-label-text {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--forest);
+    }
+    .slot-status {
+      font-size: 10px;
+      color: var(--stone);
+      letter-spacing: 0.06em;
+    }
+
+    /* Crop controls */
+    .crop-controls { display: none; flex-direction: column; gap: 8px; margin-top: 10px; }
+    .crop-controls.visible { display: flex; }
+    .thumb { width: 100%; height: 64px; object-fit: cover; border: 1px solid var(--rule); }
+    .range-row { display: flex; align-items: center; gap: 8px; }
+    .range-row label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone); width: 32px; flex-shrink: 0; }
+    .range-row input[type=range] { flex: 1; accent-color: var(--forest); }
+    .range-row .rval { font-size: 10px; color: var(--stone); width: 40px; text-align: right; }
+    .drag-hint-text { font-size: 10px; color: var(--rule); letter-spacing: 0.06em; text-align: center; margin-top: 2px; }
+
+    /* Caption fields */
+    .caption-fields { display: flex; flex-direction: column; gap: 10px; }
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
+    .variant-row { display: flex; gap: 6px; }
+    .variant-row .toggle-btn { flex: 1; font-size: 10px; padding: 6px 4px; }
+    .caption-output {
+      background: var(--cream);
+      border: 1px solid var(--rule);
+      padding: 12px 14px;
+      font-size: 12px;
+      line-height: 1.75;
+      color: var(--forest);
+      white-space: pre-wrap;
+      margin-top: 10px;
+    }
+
+    /* Format toggle */
+    .format-row { display: flex; gap: 6px; }
+    .format-row .toggle-btn { flex: 1; }
+
+    /* Export area */
+    .export-area { padding: 20px 22px; }
+  </style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div style="display:flex;justify-content:center;margin-bottom:24px">
+        <svg viewBox="0 0 200 70" style="height:42px;width:auto;display:block" xmlns="http://www.w3.org/2000/svg">
+          <g fill="#2C4A2E">
+            <rect x="10" y="10" width="6" height="55"/>
+            <rect x="40" y="10" width="6" height="55"/>
+            <rect x="65" y="10" width="6" height="55"/>
+            <rect x="95" y="10" width="6" height="55"/>
+            <path d="M 155 10 A 27.5 27.5 0 1 0 155 65 L 155 59 A 21.5 21.5 0 1 1 155 16 Z"/>
+            <rect x="5" y="35" width="180" height="4"/>
+          </g>
+        </svg>
+      </div>
+      <div class="display" style="font-size:26px;color:var(--forest);text-align:center;margin-bottom:4px">Photo Editor</div>
+      <p style="font-size:13px;color:var(--stone);text-align:center;margin-bottom:28px;line-height:1.6">Internal tool — password required.</p>
+      <label class="field-label">Password</label>
+      <input class="field-input" type="password" id="pw-input" autocomplete="off">
+      <p id="pw-error" style="color:#c0392b;font-size:12px;margin-top:8px;display:none">Incorrect password.</p>
+      <button class="primary-btn" style="width:100%;margin-top:20px" onclick="checkPw()">Enter</button>
+    </div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <header class="app-header">
+    <div style="display:flex;align-items:center;gap:16px">
+      <svg viewBox="0 0 200 70" style="height:26px;width:auto;display:block" xmlns="http://www.w3.org/2000/svg">
+        <g fill="#F5F0E6">
+          <rect x="10" y="10" width="6" height="55"/>
+          <rect x="40" y="10" width="6" height="55"/>
+          <rect x="65" y="10" width="6" height="55"/>
+          <rect x="95" y="10" width="6" height="55"/>
+          <path d="M 155 10 A 27.5 27.5 0 1 0 155 65 L 155 59 A 21.5 21.5 0 1 1 155 16 Z"/>
+          <rect x="5" y="35" width="180" height="4"/>
+        </g>
+      </svg>
+      <span class="eyebrow">Photo Editor</span>
+    </div>
+    <span class="eyebrow">Hampton Headstone Care</span>
+  </header>
+
+  <div class="workspace">
+
+    <!-- Canvas -->
+    <div class="preview-pane">
+      <div class="active-hint" id="active-hint"></div>
+      <div class="canvas-wrap">
+        <canvas id="preview-canvas"></canvas>
+      </div>
+      <span class="canvas-hint">Preview — drag to reposition · scroll to zoom</span>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+      <!-- Format -->
+      <div class="sidebar-section">
+        <div class="section-label">Format</div>
+        <div class="format-row">
+          <button class="toggle-btn active" id="fmt-vertical" onclick="setFormat('vertical')">Vertical (9:11)</button>
+          <button class="toggle-btn" id="fmt-horizontal" onclick="setFormat('horizontal')">Horizontal (16:9)</button>
+        </div>
+      </div>
+
+      <!-- Before -->
+      <div class="sidebar-section">
+        <div class="section-label">Before Photo</div>
+        <div class="photo-slot" id="slot-before" onclick="setActive('before')">
+          <div class="slot-header">
+            <span class="slot-label-text">Before</span>
+            <span class="slot-status" id="status-before">No photo</span>
+          </div>
+          <label class="toggle-btn" style="cursor:pointer;display:block;text-align:center;width:100%">
+            Upload
+            <input type="file" accept="image/*" onchange="loadPhoto('before',this)">
+          </label>
+          <div class="crop-controls" id="crop-before">
+            <img class="thumb" id="thumb-before" src="" alt="">
+            <div class="range-row">
+              <label>Scale</label>
+              <input type="range" id="scale-before" min="30" max="400" value="100" oninput="syncSlider('before')">
+              <span class="rval" id="rval-scale-before">100%</span>
+            </div>
+            <div class="range-row">
+              <label>X</label>
+              <input type="range" id="x-before" min="-800" max="800" value="0" oninput="syncSlider('before')">
+              <span class="rval" id="rval-x-before">0</span>
+            </div>
+            <div class="range-row">
+              <label>Y</label>
+              <input type="range" id="y-before" min="-800" max="800" value="0" oninput="syncSlider('before')">
+              <span class="rval" id="rval-y-before">0</span>
+            </div>
+            <div class="drag-hint-text">Click slot to activate · drag on canvas · scroll to zoom</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- After -->
+      <div class="sidebar-section">
+        <div class="section-label">After Photo</div>
+        <div class="photo-slot" id="slot-after" onclick="setActive('after')">
+          <div class="slot-header">
+            <span class="slot-label-text">After</span>
+            <span class="slot-status" id="status-after">No photo</span>
+          </div>
+          <label class="toggle-btn" style="cursor:pointer;display:block;text-align:center;width:100%">
+            Upload
+            <input type="file" accept="image/*" onchange="loadPhoto('after',this)">
+          </label>
+          <div class="crop-controls" id="crop-after">
+            <img class="thumb" id="thumb-after" src="" alt="">
+            <div class="range-row">
+              <label>Scale</label>
+              <input type="range" id="scale-after" min="30" max="400" value="100" oninput="syncSlider('after')">
+              <span class="rval" id="rval-scale-after">100%</span>
+            </div>
+            <div class="range-row">
+              <label>X</label>
+              <input type="range" id="x-after" min="-800" max="800" value="0" oninput="syncSlider('after')">
+              <span class="rval" id="rval-x-after">0</span>
+            </div>
+            <div class="range-row">
+              <label>Y</label>
+              <input type="range" id="y-after" min="-800" max="800" value="0" oninput="syncSlider('after')">
+              <span class="rval" id="rval-y-after">0</span>
+            </div>
+            <div class="drag-hint-text">Click slot to activate · drag on canvas · scroll to zoom</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Caption -->
+      <div class="sidebar-section">
+        <div class="section-label">Caption</div>
+        <div class="caption-fields">
+          <div class="field-group">
+            <label class="field-label">Name</label>
+            <input class="field-input" id="cap-name" placeholder="Louis J. Leedham" oninput="updateCaption()">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="field-group">
+              <label class="field-label">Birth Year</label>
+              <input class="field-input" id="cap-birth" placeholder="1901" maxlength="4" oninput="updateCaption()">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Death Year</label>
+              <input class="field-input" id="cap-death" placeholder="1985" maxlength="4" oninput="updateCaption()">
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Cemetery</label>
+            <input class="field-input" id="cap-cemetery" placeholder="Green River Cemetery" oninput="updateCaption();render()">
+          </div>
+          <div>
+            <div class="eyebrow" style="margin-bottom:8px">Variant</div>
+            <div class="variant-row">
+              <button class="toggle-btn active" id="var-standard" onclick="setVariant('standard')">Standard</button>
+              <button class="toggle-btn" id="var-veteran" onclick="setVariant('veteran')">Veteran</button>
+              <button class="toggle-btn" id="var-family" onclick="setVariant('family')">Family</button>
+            </div>
+          </div>
+          <div class="caption-output" id="caption-output"></div>
+          <button class="secondary-btn" style="width:100%" onclick="copyCaption()" id="copy-btn">Copy Caption</button>
+        </div>
+      </div>
+
+      <!-- Footer text -->
+      <div class="sidebar-section">
+        <div class="section-label">
+          Image Footer
+          <div style="display:flex;gap:6px">
+            <button class="toggle-btn active" id="footer-on" onclick="setFooter(true)">Show</button>
+            <button class="toggle-btn" id="footer-off" onclick="setFooter(false)">Hide</button>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Footer Text</label>
+          <input class="field-input" id="footer-text" placeholder="Cedar Lawn Cemetery · June 2026" oninput="render()">
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div class="export-area">
+        <button class="primary-btn" style="width:100%" onclick="exportImage()">Download JPG</button>
+        <p class="eyebrow" style="text-align:center;margin-top:10px">Exports at 2× resolution</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Auth ──────────────────────────────────────────────────────────────
+const PASS = 'willywonka';
+
+function checkPw() {
+  const v = document.getElementById('pw-input').value;
+  if (v === PASS) {
+    sessionStorage.setItem('hhc_photo_auth', '1');
+    boot();
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+  }
+}
+
+document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkPw(); });
+
+function boot() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  initCanvas();
+  updateCaption();
+  render();
+}
+
+if (sessionStorage.getItem('hhc_photo_auth') === '1') boot();
+
+// ── Layout constants ──────────────────────────────────────────────────
+// All values in "display units" — export multiplies by 2
+
+const FORMATS = {
+  vertical:   { W: 540, H: 675, label: '1080 × 1350' },   // 9:11 portrait
+  horizontal: { W: 720, H: 405, label: '1440 × 810' },    // 16:9 landscape (side by side)
+};
+
+let fmt = 'vertical';
+
+const PAD   = 16;   // outer padding
+const GAP   = 16;   // gap between images
+const LBL_H = 22;   // height reserved for BEFORE/AFTER label
+const FTR_H = 26;   // footer height
+
+// ── State ─────────────────────────────────────────────────────────────
+const S = {
+  before:     { img: null, scale: 1, x: 0, y: 0 },
+  after:      { img: null, scale: 1, x: 0, y: 0 },
+  active:     null,
+  footerOn:   true,
+  variant:    'standard',
+};
+
+// ── Canvas setup ──────────────────────────────────────────────────────
+const canvas = document.getElementById('preview-canvas');
+const ctx    = canvas.getContext('2d');
+
+function initCanvas() {
+  applyFormat();
+}
+
+function applyFormat() {
+  const f = FORMATS[fmt];
+  canvas.width  = f.W;
+  canvas.height = f.H;
+  render();
+}
+
+// Slot geometry — returns {x, y, w, h} in display coords
+function zones() {
+  const f = FORMATS[fmt];
+  const W = f.W, H = f.H;
+  const footH = S.footerOn ? FTR_H : 0;
+
+  if (fmt === 'vertical') {
+    const availH = H - PAD * 2 - GAP - LBL_H * 2 - footH;
+    const imgH = availH / 2;
+    const imgW = W - PAD * 2;
+    return {
+      before: { x: PAD, y: PAD + LBL_H, w: imgW, h: imgH },
+      after:  { x: PAD, y: PAD + LBL_H + imgH + GAP + LBL_H, w: imgW, h: imgH },
+    };
+  } else {
+    // Horizontal: side by side
+    const availW = W - PAD * 2 - GAP;
+    const imgW = availW / 2;
+    const imgH = H - PAD * 2 - LBL_H - footH;
+    return {
+      before: { x: PAD, y: PAD + LBL_H, w: imgW, h: imgH },
+      after:  { x: PAD + imgW + GAP, y: PAD + LBL_H, w: imgW, h: imgH },
+    };
+  }
+}
+
+// ── Render ────────────────────────────────────────────────────────────
+function render() {
+  const f = FORMATS[fmt];
+  const W = f.W, H = f.H;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#1e2b1a';
+  ctx.fillRect(0, 0, W, H);
+
+  const z = zones();
+
+  drawSlot('before', z.before);
+  drawSlot('after',  z.after);
+
+  // Labels
+  ctx.textAlign = 'center';
+  ctx.font = '600 10px Jost, sans-serif';
+  ctx.fillStyle = '#F5F0E6';
+
+  if (fmt === 'vertical') {
+    ctx.fillText('BEFORE', W / 2, PAD + LBL_H - 7);
+    ctx.fillText('AFTER',  W / 2, z.after.y - 7);
+  } else {
+    ctx.fillText('BEFORE', z.before.x + z.before.w / 2, PAD + LBL_H - 7);
+    ctx.fillText('AFTER',  z.after.x  + z.after.w  / 2, PAD + LBL_H - 7);
+  }
+
+  // Footer
+  if (S.footerOn) {
+    const txt = document.getElementById('footer-text').value.trim();
+    if (txt) {
+      ctx.font = '300 8px Jost, sans-serif';
+      ctx.fillStyle = 'rgba(245,240,230,0.35)';
+      ctx.textAlign = 'center';
+      ctx.fillText(txt, W / 2, H - 9);
+    }
+  }
+}
+
+function drawSlot(which, z) {
+  const s = S[which];
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(z.x, z.y, z.w, z.h);
+  ctx.clip();
+
+  if (s.img) {
+    const sw = s.img.width  * s.scale;
+    const sh = s.img.height * s.scale;
+    const dx = z.x + z.w / 2 - sw / 2 + s.x;
+    const dy = z.y + z.h / 2 - sh / 2 + s.y;
+    ctx.drawImage(s.img, dx, dy, sw, sh);
+  } else {
+    ctx.fillStyle = '#243320';
+    ctx.fillRect(z.x, z.y, z.w, z.h);
+    ctx.fillStyle = 'rgba(245,240,230,0.18)';
+    ctx.font = '400 10px Jost, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('No photo', z.x + z.w / 2, z.y + z.h / 2 + 4);
+  }
+  ctx.restore();
+
+  // Active border
+  if (S.active === which) {
+    ctx.strokeStyle = '#B8962E';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(z.x + 0.75, z.y + 0.75, z.w - 1.5, z.h - 1.5);
+  }
+}
+
+// ── Photo loading ─────────────────────────────────────────────────────
+function loadPhoto(which, input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  createImageBitmap(file, { imageOrientation: 'from-image' }).then(bitmap => {
+    const canvas2 = document.createElement('canvas');
+    canvas2.width  = bitmap.width;
+    canvas2.height = bitmap.height;
+    canvas2.getContext('2d').drawImage(bitmap, 0, 0);
+    bitmap.close && bitmap.close();
+
+    const img = new Image();
+    img.onload = () => {
+      S[which].img = img;
+      // Auto-fit
+      const z = zones()[which];
+      const fitScale = Math.max(z.w / img.width, z.h / img.height);
+      S[which].scale = fitScale;
+      S[which].x = 0;
+      S[which].y = 0;
+
+      // Sync sliders
+      setSliders(which, fitScale, 0, 0);
+
+      document.getElementById(`thumb-${which}`).src = canvas2.toDataURL('image/jpeg', 0.7);
+      document.getElementById(`crop-${which}`).classList.add('visible');
+      document.getElementById(`status-${which}`).textContent = 'Loaded';
+
+      setActive(which);
+      render();
+    };
+    img.src = canvas2.toDataURL('image/jpeg', 0.9);
+  }).catch(() => {
+    // Fallback
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        S[which].img = img;
+        const z = zones()[which];
+        const fitScale = Math.max(z.w / img.width, z.h / img.height);
+        S[which].scale = fitScale;
+        S[which].x = 0; S[which].y = 0;
+        setSliders(which, fitScale, 0, 0);
+        document.getElementById(`thumb-${which}`).src = e.target.result;
+        document.getElementById(`crop-${which}`).classList.add('visible');
+        document.getElementById(`status-${which}`).textContent = 'Loaded';
+        setActive(which);
+        render();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function setSliders(which, scale, x, y) {
+  const sv = Math.round(scale * 100);
+  document.getElementById(`scale-${which}`).value = Math.min(400, Math.max(30, sv));
+  document.getElementById(`x-${which}`).value = Math.round(x);
+  document.getElementById(`y-${which}`).value = Math.round(y);
+  document.getElementById(`rval-scale-${which}`).textContent = sv + '%';
+  document.getElementById(`rval-x-${which}`).textContent = Math.round(x);
+  document.getElementById(`rval-y-${which}`).textContent = Math.round(y);
+}
+
+function syncSlider(which) {
+  S[which].scale = parseFloat(document.getElementById(`scale-${which}`).value) / 100;
+  S[which].x     = parseFloat(document.getElementById(`x-${which}`).value);
+  S[which].y     = parseFloat(document.getElementById(`y-${which}`).value);
+  document.getElementById(`rval-scale-${which}`).textContent = Math.round(S[which].scale * 100) + '%';
+  document.getElementById(`rval-x-${which}`).textContent = Math.round(S[which].x);
+  document.getElementById(`rval-y-${which}`).textContent = Math.round(S[which].y);
+  render();
+}
+
+// ── Active slot ───────────────────────────────────────────────────────
+function setActive(which) {
+  S.active = which;
+  ['before','after'].forEach(w => {
+    document.getElementById(`slot-${w}`).classList.toggle('is-active', w === which);
+  });
+  document.getElementById('active-hint').textContent =
+    which ? `Editing: ${which.toUpperCase()} — drag on canvas to reposition` : '';
+  render();
+}
+
+document.getElementById('slot-before').addEventListener('click', () => { if (S.before.img) setActive('before'); });
+document.getElementById('slot-after').addEventListener('click',  () => { if (S.after.img)  setActive('after');  });
+
+// ── Canvas drag ───────────────────────────────────────────────────────
+let drag = { on: false, sx: 0, sy: 0, ox: 0, oy: 0 };
+
+function canvasXY(e) {
+  const r  = canvas.getBoundingClientRect();
+  const sx = canvas.width  / r.width;
+  const sy = canvas.height / r.height;
+  return { cx: (e.clientX - r.left) * sx, cy: (e.clientY - r.top) * sy };
+}
+
+canvas.addEventListener('mousedown', e => {
+  if (!S.active) return;
+  const { cx, cy } = canvasXY(e);
+  const z = zones()[S.active];
+  if (cy >= z.y && cy <= z.y + z.h && cx >= z.x && cx <= z.x + z.w) {
+    drag.on = true;
+    drag.sx = cx; drag.sy = cy;
+    drag.ox = S[S.active].x; drag.oy = S[S.active].y;
+    canvas.style.cursor = 'grabbing';
+  }
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (!drag.on || !S.active) return;
+  const { cx, cy } = canvasXY(e);
+  S[S.active].x = drag.ox + (cx - drag.sx);
+  S[S.active].y = drag.oy + (cy - drag.sy);
+  setSliders(S.active, S[S.active].scale, S[S.active].x, S[S.active].y);
+  render();
+});
+
+canvas.addEventListener('mouseup',   () => { drag.on = false; canvas.style.cursor = 'crosshair'; });
+canvas.addEventListener('mouseleave',() => { drag.on = false; canvas.style.cursor = 'crosshair'; });
+
+canvas.addEventListener('wheel', e => {
+  if (!S.active) return;
+  e.preventDefault();
+  S[S.active].scale = Math.max(0.3, Math.min(4, S[S.active].scale + (e.deltaY < 0 ? 0.06 : -0.06)));
+  setSliders(S.active, S[S.active].scale, S[S.active].x, S[S.active].y);
+  render();
+}, { passive: false });
+
+// ── Format switch ─────────────────────────────────────────────────────
+function setFormat(f) {
+  fmt = f;
+  ['vertical','horizontal'].forEach(id => {
+    document.getElementById(`fmt-${id}`).classList.toggle('active', id === f);
+  });
+  applyFormat();
+}
+
+// ── Footer ────────────────────────────────────────────────────────────
+function setFooter(on) {
+  S.footerOn = on;
+  document.getElementById('footer-on').classList.toggle('active', on);
+  document.getElementById('footer-off').classList.toggle('active', !on);
+  render();
+}
+
+// ── Caption ───────────────────────────────────────────────────────────
+function setVariant(v) {
+  S.variant = v;
+  ['standard','veteran','family'].forEach(id => {
+    document.getElementById(`var-${id}`).classList.toggle('active', id === v);
+  });
+  updateCaption();
+}
+
+function updateCaption() {
+  const name     = document.getElementById('cap-name').value.trim()     || '[NAME]';
+  const birth    = document.getElementById('cap-birth').value.trim()    || '[BIRTH]';
+  const death    = document.getElementById('cap-death').value.trim()    || '[DEATH]';
+  const cemetery = document.getElementById('cap-cemetery').value.trim() || '[CEMETERY]';
+
+  let first = '';
+  if (S.variant === 'standard') {
+    first = `Cleaned ${name}, ${birth}-${death} at ${cemetery} this week.`;
+  } else if (S.variant === 'veteran') {
+    first = `Cleaned ${name}, ${birth}-${death} at ${cemetery} this week. Placed veteran flag as well.`;
+  } else {
+    first = `Cleaned family plot at ${cemetery} this week.`;
+  }
+
+  document.getElementById('caption-output').textContent =
+`${first}
+
+If you have a loved one buried locally and their stone could use some care, I'm happy to help. I do this throughout East Hampton and the surrounding area.
+
+Visit HamptonHeadstoneCare.com or feel free to reach out at (631) 604-8002.`;
+}
+
+function copyCaption() {
+  navigator.clipboard.writeText(document.getElementById('caption-output').textContent).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied';
+    setTimeout(() => { btn.textContent = 'Copy Caption'; }, 1800);
+  });
+}
+
+// ── Export ────────────────────────────────────────────────────────────
+function exportImage() {
+  const SCALE = 2;
+  const f  = FORMATS[fmt];
+  const ec = document.createElement('canvas');
+  ec.width  = f.W * SCALE;
+  ec.height = f.H * SCALE;
+  const ectx = ec.getContext('2d');
+  ectx.scale(SCALE, SCALE);
+
+  // Background
+  ectx.fillStyle = '#1e2b1a';
+  ectx.fillRect(0, 0, f.W, f.H);
+
+  const z = zones();
+
+  function drawExportSlot(which, zz) {
+    const s = S[which];
+    ectx.save();
+    ectx.beginPath();
+    ectx.rect(zz.x, zz.y, zz.w, zz.h);
+    ectx.clip();
+    if (s.img) {
+      const sw = s.img.width  * s.scale;
+      const sh = s.img.height * s.scale;
+      const dx = zz.x + zz.w / 2 - sw / 2 + s.x;
+      const dy = zz.y + zz.h / 2 - sh / 2 + s.y;
+      ectx.drawImage(s.img, dx, dy, sw, sh);
+    }
+    ectx.restore();
+  }
+
+  drawExportSlot('before', z.before);
+  drawExportSlot('after',  z.after);
+
+  ectx.textAlign = 'center';
+  ectx.font = '600 10px Jost, sans-serif';
+  ectx.fillStyle = '#F5F0E6';
+
+  if (fmt === 'vertical') {
+    ectx.fillText('BEFORE', f.W / 2, PAD + LBL_H - 7);
+    ectx.fillText('AFTER',  f.W / 2, z.after.y - 7);
+  } else {
+    ectx.fillText('BEFORE', z.before.x + z.before.w / 2, PAD + LBL_H - 7);
+    ectx.fillText('AFTER',  z.after.x  + z.after.w  / 2, PAD + LBL_H - 7);
+  }
+
+  if (S.footerOn) {
+    const txt = document.getElementById('footer-text').value.trim();
+    if (txt) {
+      ectx.font = '300 8px Jost, sans-serif';
+      ectx.fillStyle = 'rgba(245,240,230,0.35)';
+      ectx.textAlign = 'center';
+      ectx.fillText(txt, f.W / 2, f.H - 9);
+    }
+  }
+
+  const link = document.createElement('a');
+  link.download = `HHC_${fmt}_${Date.now()}.jpg`;
+  link.href = ec.toDataURL('image/jpeg', 0.92);
+  link.click();
+}
+
+// Init caption
+updateCaption();
+</script>
+</body>
+</html>
